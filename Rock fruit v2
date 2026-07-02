@@ -1,0 +1,454 @@
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.Name = "PremiumAutoFarmUI"
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+MainFrame.Position = UDim2.new(0.5, -110, 0.4, -120)
+MainFrame.Size = UDim2.new(0, 220, 0, 250)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 10)
+MainCorner.Parent = MainFrame
+
+local Title = Instance.new("TextLabel")
+Title.Parent = MainFrame
+Title.BackgroundTransparency = 1
+Title.Position = UDim2.new(0, 10, 0, 5)
+Title.Size = UDim2.new(0, 150, 0, 25)
+Title.Font = Enum.Font.SourceSansBold
+Title.Text = "AUTO FARM v2"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 16
+Title.TextXAlignment = Enum.TextXAlignment.Left
+
+local MinButton = Instance.new("TextButton")
+MinButton.Parent = MainFrame
+MinButton.BackgroundColor3 = Color3.fromRGB(230, 125, 30)
+MinButton.Position = UDim2.new(1, -35, 0, 5)
+MinButton.Size = UDim2.new(0, 25, 0, 25)
+MinButton.Font = Enum.Font.SourceSansBold
+MinButton.Text = "-"
+MinButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinButton.TextSize = 16
+
+local MinCorner = Instance.new("UICorner")
+MinCorner.CornerRadius = UDim.new(0, 6)
+MinCorner.Parent = MinButton
+
+local ContentFrame = Instance.new("Frame")
+ContentFrame.Parent = MainFrame
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.Position = UDim2.new(0, 0, 0, 35)
+ContentFrame.Size = UDim2.new(1, 0, 1, -35)
+
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Parent = ContentFrame
+ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+ToggleButton.Position = UDim2.new(0, 15, 0, 0)
+ToggleButton.Size = UDim2.new(0, 190, 0, 35)
+ToggleButton.Font = Enum.Font.SourceSansBold
+ToggleButton.Text = "STOP AUTOFARM"
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.TextSize = 16
+
+local ToggleCorner = Instance.new("UICorner")
+ToggleCorner.CornerRadius = UDim.new(0, 6)
+ToggleCorner.Parent = ToggleButton
+
+local SkillLabel = Instance.new("TextLabel")
+SkillLabel.Parent = ContentFrame
+SkillLabel.BackgroundTransparency = 1
+SkillLabel.Position = UDim2.new(0, 15, 0, 45)
+SkillLabel.Size = UDim2.new(0, 190, 0, 20)
+SkillLabel.Font = Enum.Font.SourceSansBold
+SkillLabel.Text = "Select Skills:"
+SkillLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+SkillLabel.TextSize = 14
+SkillLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local skillNames = {"Z", "X", "C", "V"}
+_G.SelectedSkills = {Z = true, X = true, C = true, V = false}
+
+for i, skill in ipairs(skillNames) do
+    local btn = Instance.new("TextButton")
+    btn.Parent = ContentFrame
+    btn.Size = UDim2.new(0, 40, 0, 30)
+    btn.Position = UDim2.new(0, 15 + ((i-1) * 48), 0, 70)
+    btn.Font = Enum.Font.SourceSansBold
+    btn.Text = skill
+    btn.TextSize = 14
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    
+    if _G.SelectedSkills[skill] then
+        btn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+    else
+        btn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+    end
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 4)
+    btnCorner.Parent = btn
+    
+    btn.MouseButton1Click:Connect(function()
+        _G.SelectedSkills[skill] = not _G.SelectedSkills[skill]
+        if _G.SelectedSkills[skill] then
+            btn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+        else
+            btn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+        end
+    end)
+end
+
+local SlotLabel = Instance.new("TextLabel")
+SlotLabel.Parent = ContentFrame
+SlotLabel.BackgroundTransparency = 1
+SlotLabel.Position = UDim2.new(0, 15, 0, 110)
+SlotLabel.Size = UDim2.new(0, 190, 0, 20)
+SlotLabel.Font = Enum.Font.SourceSansBold
+SlotLabel.Text = "Select Hotbar Slot:"
+SlotLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+SlotLabel.TextSize = 14
+SlotLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local slotButtons = {}
+_G.SelectedSlot = 1
+
+for slotNum = 1, 5 do
+    local btn = Instance.new("TextButton")
+    btn.Parent = ContentFrame
+    btn.Size = UDim2.new(0, 34, 0, 30)
+    btn.Position = UDim2.new(0, 15 + ((slotNum-1) * 38), 0, 135)
+    btn.Font = Enum.Font.SourceSansBold
+    btn.Text = tostring(slotNum)
+    btn.TextSize = 14
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    
+    if _G.SelectedSlot == slotNum then
+        btn.BackgroundColor3 = Color3.fromRGB(50, 50, 150)
+    else
+        btn.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
+    end
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 4)
+    btnCorner.Parent = btn
+    
+    slotButtons[slotNum] = btn
+    
+    btn.MouseButton1Click:Connect(function()
+        _G.SelectedSlot = slotNum
+        for s, b in pairs(slotButtons) do
+            if s == slotNum then
+                b.BackgroundColor3 = Color3.fromRGB(50, 50, 150)
+            else
+                b.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
+            end
+        end
+    end)
+end
+
+local isMinimized = false
+MinButton.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    if isMinimized then
+        ContentFrame.Visible = false
+        MainFrame.Size = UDim2.new(0, 220, 0, 35)
+        MinButton.Text = "+"
+    else
+        ContentFrame.Visible = true
+        MainFrame.Size = UDim2.new(0, 220, 0, 250)
+        MinButton.Text = "-"
+    end
+end)
+
+local workspace = game:GetService("Workspace")
+local players = game:GetService("Players")
+local runService = game:GetService("RunService")
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local localPlayer = players.LocalPlayer
+
+local actionRemote = replicatedStorage:WaitForChild("Remotes"):WaitForChild("Action")
+local cancelQuestRemote = replicatedStorage:WaitForChild("Modules"):WaitForChild("NetworkFramework"):WaitForChild("NetworkEvent")
+
+_G.AutoFarm = true
+local skillDelay = 0.05
+local questCheckInterval = 4 
+local lastQuestTime = 0
+local currentTargetRoot = nil
+local teleportConnection = nil
+local lastNpcTarget = "" -- ตัวแปรสำหรับจำชื่อ NPC ล่าสุดที่ไปหา
+
+local questMap = {
+    {minLv = 0, maxLv = 999, npc = "NPC_Quest1", mob = "Bacon"},
+    {minLv = 1000, maxLv = 1999, npc = "NPC_Quest2", mob = "Bacon Strong"},
+    {minLv = 2000, maxLv = 2999, npc = "NPC_Quest3", mob = "Bacon Traveler"},
+    {minLv = 3000, maxLv = 3999, npc = "NPC_Quest4", mob = "Bacon Fawkes"},
+    {minLv = 4000, maxLv = 4999, npc = "NPC_Quest5", mob = "Bacon Pirate"},
+    {minLv = 5000, maxLv = 5999, npc = "NPC_Quest6", mob = "Bacon Clown"},
+    {minLv = 6000, maxLv = 6999, npc = "NPC_Quest7", mob = "Bacon Tarzan"},
+    {minLv = 7000, maxLv = 7999, npc = "NPC_Quest8", mob = "Gorilla"},
+    {minLv = 8000, maxLv = 8999, npc = "NPC_Quest9", mob = "Bacon Fisherman"},
+    {minLv = 9000, maxLv = 9999, npc = "NPC_Quest10", mob = "Bacon The Deep"},
+    {minLv = 10000, maxLv = 10999, npc = "NPC_Quest11", mob = "Bacon Marine"},
+    {minLv = 11000, maxLv = 11999, npc = "NPC_Quest12", mob = "Bacon Marine Captain"},
+    {minLv = 12000, maxLv = 12999, npc = "NPC_Quest13", mob = "Bacon Rock"},
+    {minLv = 13000, maxLv = 13999, npc = "NPC_Quest14", mob = "Bacon Iron"},
+    {minLv = 14000, maxLv = 14999, npc = "NPC_Quest15", mob = "Bacon Minerals"},
+    {minLv = 15000, maxLv = 15999, npc = "NPC_Quest16", mob = "Bacon Kryptonite"},
+    {minLv = 16000, maxLv = 16999, npc = "NPC_Quest17", mob = "Bacon Snow"},
+    {minLv = 17000, maxLv = 17999, npc = "NPC_Quest18", mob = "Bacon Ice"},
+    {minLv = 18000, maxLv = 18999, npc = "NPC_Quest19", mob = "Bacon Lava"},
+    {minLv = 19000, maxLv = math.huge, npc = "NPC_Quest20", mob = "Bacon Hellfire"}
+}
+
+local function getPlayerLevel()
+    local currentLevel = 1
+    pcall(function()
+        local playerGui = localPlayer:FindFirstChild("PlayerGui")
+        if playerGui then
+            for _, gui in pairs(playerGui:GetChildren()) do
+                if gui:IsA("ScreenGui") and gui.Enabled then
+                    local frameDisplay = gui:FindFirstChild("Frame_Display", true)
+                    if frameDisplay then
+                        local levelTextObj = frameDisplay:FindFirstChild("LevelText", true)
+                        if levelTextObj and levelTextObj:IsA("TextLabel") and levelTextObj.Text ~= "" then
+                            local cleanNumber = string.gsub(levelTextObj.Text, "%D", "")
+                            if cleanNumber and cleanNumber ~= "" then
+                                currentLevel = tonumber(cleanNumber)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end)
+    return currentLevel
+end
+
+local function getCurrentQuestConfig()
+    local level = getPlayerLevel()
+    for _, config in ipairs(questMap) do
+        if level >= config.minLv and level <= config.maxLv then
+            return config
+        end
+    end
+    return questMap[1]
+end
+
+local function abandonCurrentQuest()
+    pcall(function()
+        local args = {
+            "fire",
+            [3] = "Quest",
+            [4] = "Cancel"
+        }
+        cancelQuestRemote:FireServer(unpack(args))
+    end)
+end
+
+local function getTargetNPC()
+    local config = getCurrentQuestConfig()
+    local npcFolder = workspace:FindFirstChild("NpcQuest")
+    if npcFolder and config then
+        return npcFolder:FindFirstChild(config.npc)
+    end
+    return nil
+end
+
+local function getToolAtSlot(slotIndex)
+    local backpack = localPlayer:FindFirstChild("Backpack")
+    local character = localPlayer.Character
+    
+    if character then
+        local equippedTool = character:FindFirstChildOfClass("Tool")
+        if equippedTool then
+            return equippedTool
+        end
+    end
+    
+    if backpack then
+        local toolItems = {}
+        for _, item in ipairs(backpack:GetChildren()) do
+            if item:IsA("Tool") then
+                table.insert(toolItems, item)
+            end
+        end
+        return toolItems[slotIndex]
+    end
+    return nil
+end
+
+local function equipSelectedSlot()
+    pcall(function()
+        local character = localPlayer.Character
+        if character then
+            local alreadyEquipped = character:FindFirstChildOfClass("Tool")
+            if not alreadyEquipped then
+                local targetTool = getToolAtSlot(_G.SelectedSlot)
+                if targetTool and targetTool.Parent ~= character then
+                    character:FindFirstChildOfClass("Humanoid"):EquipTool(targetTool)
+                end
+            end
+        end
+    end)
+end
+
+local function interactWithNPC(npc, isNewNpc)
+    if not npc then return end
+    local root = npc:FindFirstChild("HumanoidRootPart") or npc:FindFirstChildOfClass("Part")
+    if root and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local myRoot = localPlayer.Character.HumanoidRootPart
+        
+        -- เดินทาง (TP) ไปหา NPC รับเควส
+        myRoot.CFrame = root.CFrame * CFrame.new(0, 0, -3)
+        task.wait(0.15)
+        
+        -- [จุดสำคัญ] ถ้าเป็นการเปลี่ยนตัว NPC ใหม่ (เลเวลอัป) ให้กดยกเลิกเควสเก่าทันทีตรงนี้
+        if isNewNpc then
+            abandonCurrentQuest()
+            task.wait(0.2) -- รอเซิร์ฟเวอร์เคลียร์ระบบเควสค้างแป๊บนึง
+        end
+        
+        -- คุยรับเควสใหม่
+        local prompt = npc:FindFirstChildWhichIsA("ProximityPrompt", true)
+        if prompt then
+            fireproximityprompt(prompt)
+        else
+            local clickDetector = npc:FindFirstChildWhichIsA("ClickDetector", true)
+            if clickDetector then
+                fireclickdetector(clickDetector)
+            end
+        end
+        task.wait(0.15)
+    end
+end
+
+local function useSkillRemote(skillKey)
+    pcall(function()
+        local targetTool = getToolAtSlot(_G.SelectedSlot)
+        local toolName = targetTool and targetTool.Name or "Combat"
+        
+        local args = {
+            toolName,
+            skillKey
+        }
+        actionRemote:FireServer(unpack(args))
+    end)
+end
+
+local function getLockedMobTarget()
+    local config = getCurrentQuestConfig()
+    if not config then return nil end
+    
+    local mobFolder = workspace:FindFirstChild("Mob")
+    if mobFolder then
+        for _, mob in pairs(mobFolder:GetChildren()) do
+            if mob.Name == config.mob then
+                local root = mob:FindFirstChild("HumanoidRootPart")
+                local humanoid = mob:FindFirstChildOfClass("Humanoid")
+                
+                if root and (not humanoid or humanoid.Health > 0) then
+                    return root
+                end
+            end
+        end
+    end
+    return nil
+end
+
+if teleportConnection then teleportConnection:Disconnect() end
+teleportConnection = runService.Heartbeat:Connect(function()
+    if _G.AutoFarm and currentTargetRoot and currentTargetRoot.Parent and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local char = localPlayer.Character
+        local root = char.HumanoidRootPart
+        
+        root.CFrame = (currentTargetRoot.CFrame * CFrame.new(0, 7, 0)) * CFrame.Angles(math.rad(-90), 0, 0)
+        
+        if not root:FindFirstChild("VelocityHandler") then
+            local bv = Instance.new("BodyVelocity")
+            bv.Name = "VelocityHandler"
+            bv.Velocity = Vector3.new(0, 0, 0)
+            bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+            bv.Parent = root
+        end
+    else
+        if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local bv = localPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler")
+            if bv then bv:Destroy() end
+        end
+    end
+end)
+
+local function startFarm()
+    task.spawn(function()
+        -- ตั้งค่าเริ่มต้นให้กับตัวแปร NPC ตัวแรกตอนเปิดสคริปต์
+        local firstConfig = getCurrentQuestConfig()
+        if firstConfig then lastNpcTarget = firstConfig.npc end
+        
+        while _G.AutoFarm do
+            equipSelectedSlot()
+            
+            local config = getCurrentQuestConfig()
+            local currentNPC = getTargetNPC()
+            
+            if currentNPC and (tick() - lastQuestTime > questCheckInterval) then
+                currentTargetRoot = nil 
+                
+                -- เช็คดูว่า NPC เป้าหมายปัจจุบันตรงกับครั้งล่าสุดไหม?
+                local isNewNpc = false
+                if config and config.npc ~= lastNpcTarget then
+                    isNewNpc = true
+                    lastNpcTarget = config.npc -- อัปเดตเป้าหมายตัวใหม่ไว้จำในรอบถัดไป
+                end
+                
+                -- เรียกฟังก์ชันคุย NPC โดยส่งค่าไปด้วยว่านี่คือ NPC ตัวใหม่ที่เพิ่งย้ายมาหาหรือไม่
+                interactWithNPC(currentNPC, isNewNpc)
+                lastQuestTime = tick()
+            end
+            
+            local targetMobRoot = getLockedMobTarget()
+            if targetMobRoot then
+                currentTargetRoot = targetMobRoot
+                
+                local orderedSkills = {"Z", "X", "C", "V"}
+                for _, skill in ipairs(orderedSkills) do
+                    if not _G.AutoFarm or currentTargetRoot ~= targetMobRoot then 
+                        break 
+                    end
+                    
+                    if _G.SelectedSkills[skill] then
+                        useSkillRemote(string.lower(skill))
+                        task.wait(skillDelay)
+                    end
+                end
+            else
+                currentTargetRoot = nil
+                task.wait(0.05)
+            end
+            task.wait(0.01)
+        end
+    end)
+end
+
+ToggleButton.MouseButton1Click:Connect(function()
+    _G.AutoFarm = not _G.AutoFarm
+    if _G.AutoFarm then
+        ToggleButton.Text = "STOP AUTOFARM"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        startFarm()
+    else
+        ToggleButton.Text = "START AUTOFARM"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+        currentTargetRoot = nil
+        if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local bv = localPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler")
+            if bv then bv:Destroy() end
+        end
+    end
+end)
+
+startFarm()
