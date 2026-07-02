@@ -1,5 +1,55 @@
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+
+local IntroGui = Instance.new("ScreenGui")
+IntroGui.Parent = CoreGui
+IntroGui.Name = "IntroScreenGui"
+
+local IntroFrame = Instance.new("Frame")
+IntroFrame.Parent = IntroGui
+IntroFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+IntroFrame.Size = UDim2.new(0, 320, 0, 100)
+IntroFrame.Position = UDim2.new(0.5, -160, 0.5, -50)
+IntroFrame.BackgroundTransparency = 0
+IntroFrame.BorderSizePixel = 0
+
+local IntroCorner = Instance.new("UICorner")
+IntroCorner.CornerRadius = UDim.new(0, 12)
+IntroCorner.Parent = IntroFrame
+
+local IntroStroke = Instance.new("UIStroke")
+IntroStroke.Color = Color3.fromRGB(60, 60, 70)
+IntroStroke.Thickness = 1.5
+IntroStroke.Parent = IntroFrame
+
+local IntroText = Instance.new("TextLabel")
+IntroText.Parent = IntroFrame
+IntroText.BackgroundTransparency = 1
+IntroText.Size = UDim2.new(1, 0, 1, 0)
+IntroText.Font = Enum.Font.SourceSansBold
+IntroText.Text = "Official YouTube : Earth711\n<font size='16' color='rgb(180,180,180)'>Free Script</font>"
+IntroText.RichText = true
+IntroText.TextColor3 = Color3.fromRGB(255, 255, 255)
+IntroText.TextSize = 20
+IntroText.TextTransparency = 0
+
+task.wait(4.0)
+
+local fadeInfo = TweenInfo.new(0.9, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+local textTween = TweenService:Create(IntroText, fadeInfo, {TextTransparency = 1})
+local frameTween = TweenService:Create(IntroFrame, fadeInfo, {BackgroundTransparency = 1})
+local strokeTween = TweenService:Create(IntroStroke, fadeInfo, {Transparency = 1})
+
+textTween:Play()
+frameTween:Play()
+strokeTween:Play()
+
+frameTween.Completed:Connect(function()
+    IntroGui:Destroy()
+end)
+
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.Parent = CoreGui
 ScreenGui.Name = "PremiumAutoFarmUI"
 
 local MainFrame = Instance.new("Frame")
@@ -180,7 +230,7 @@ local questCheckInterval = 4
 local lastQuestTime = 0
 local currentTargetRoot = nil
 local teleportConnection = nil
-local lastNpcTarget = "" -- ตัวแปรสำหรับจำชื่อ NPC ล่าสุดที่ไปหา
+local lastNpcTarget = ""
 
 local questMap = {
     {minLv = 0, maxLv = 999, npc = "NPC_Quest1", mob = "Bacon"},
@@ -303,17 +353,14 @@ local function interactWithNPC(npc, isNewNpc)
     if root and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
         local myRoot = localPlayer.Character.HumanoidRootPart
         
-        -- เดินทาง (TP) ไปหา NPC รับเควส
         myRoot.CFrame = root.CFrame * CFrame.new(0, 0, -3)
         task.wait(0.15)
         
-        -- [จุดสำคัญ] ถ้าเป็นการเปลี่ยนตัว NPC ใหม่ (เลเวลอัป) ให้กดยกเลิกเควสเก่าทันทีตรงนี้
         if isNewNpc then
             abandonCurrentQuest()
-            task.wait(0.2) -- รอเซิร์ฟเวอร์เคลียร์ระบบเควสค้างแป๊บนึง
+            task.wait(0.2)
         end
         
-        -- คุยรับเควสใหม่
         local prompt = npc:FindFirstChildWhichIsA("ProximityPrompt", true)
         if prompt then
             fireproximityprompt(prompt)
@@ -385,7 +432,6 @@ end)
 
 local function startFarm()
     task.spawn(function()
-        -- ตั้งค่าเริ่มต้นให้กับตัวแปร NPC ตัวแรกตอนเปิดสคริปต์
         local firstConfig = getCurrentQuestConfig()
         if firstConfig then lastNpcTarget = firstConfig.npc end
         
@@ -398,14 +444,12 @@ local function startFarm()
             if currentNPC and (tick() - lastQuestTime > questCheckInterval) then
                 currentTargetRoot = nil 
                 
-                -- เช็คดูว่า NPC เป้าหมายปัจจุบันตรงกับครั้งล่าสุดไหม?
                 local isNewNpc = false
                 if config and config.npc ~= lastNpcTarget then
                     isNewNpc = true
-                    lastNpcTarget = config.npc -- อัปเดตเป้าหมายตัวใหม่ไว้จำในรอบถัดไป
+                    lastNpcTarget = config.npc
                 end
                 
-                -- เรียกฟังก์ชันคุย NPC โดยส่งค่าไปด้วยว่านี่คือ NPC ตัวใหม่ที่เพิ่งย้ายมาหาหรือไม่
                 interactWithNPC(currentNPC, isNewNpc)
                 lastQuestTime = tick()
             end
