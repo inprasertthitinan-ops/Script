@@ -1,5 +1,55 @@
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+
+local IntroGui = Instance.new("ScreenGui")
+IntroGui.Parent = CoreGui
+IntroGui.Name = "IntroScreenGui"
+
+local IntroFrame = Instance.new("Frame")
+IntroFrame.Parent = IntroGui
+IntroFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+IntroFrame.Size = UDim2.new(0, 320, 0, 100)
+IntroFrame.Position = UDim2.new(0.5, -160, 0.5, -50)
+IntroFrame.BackgroundTransparency = 0
+IntroFrame.BorderSizePixel = 0
+
+local IntroCorner = Instance.new("UICorner")
+IntroCorner.CornerRadius = UDim.new(0, 12)
+IntroCorner.Parent = IntroFrame
+
+local IntroStroke = Instance.new("UIStroke")
+IntroStroke.Color = Color3.fromRGB(60, 60, 70)
+IntroStroke.Thickness = 1.5
+IntroStroke.Parent = IntroFrame
+
+local IntroText = Instance.new("TextLabel")
+IntroText.Parent = IntroFrame
+IntroText.BackgroundTransparency = 1
+IntroText.Size = UDim2.new(1, 0, 1, 0)
+IntroText.Font = Enum.Font.SourceSansBold
+IntroText.Text = "Official YouTube : Earth711\n<font size='16' color='rgb(180,180,180)'>Free Script</font>"
+IntroText.RichText = true
+IntroText.TextColor3 = Color3.fromRGB(255, 255, 255)
+IntroText.TextSize = 20
+IntroText.TextTransparency = 0
+
+task.wait(4.0)
+
+local fadeInfo = TweenInfo.new(0.9, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+local textTween = TweenService:Create(IntroText, fadeInfo, {TextTransparency = 1})
+local frameTween = TweenService:Create(IntroFrame, fadeInfo, {BackgroundTransparency = 1})
+local strokeTween = TweenService:Create(IntroStroke, fadeInfo, {Transparency = 1})
+
+textTween:Play()
+frameTween:Play()
+strokeTween:Play()
+
+frameTween.Completed:Connect(function()
+    IntroGui:Destroy()
+end)
+
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.Parent = CoreGui
 ScreenGui.Name = "PremiumAutoFarmUI"
 
 local MainFrame = Instance.new("Frame")
@@ -20,7 +70,7 @@ Title.BackgroundTransparency = 1
 Title.Position = UDim2.new(0, 10, 0, 5)
 Title.Size = UDim2.new(0, 150, 0, 25)
 Title.Font = Enum.Font.SourceSansBold
-Title.Text = "AUTO FARM"
+Title.Text = "AUTO FARM v2"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.TextSize = 16
 Title.TextXAlignment = Enum.TextXAlignment.Left
@@ -172,14 +222,38 @@ local replicatedStorage = game:GetService("ReplicatedStorage")
 local localPlayer = players.LocalPlayer
 
 local actionRemote = replicatedStorage:WaitForChild("Remotes"):WaitForChild("Action")
+local cancelQuestRemote = replicatedStorage:WaitForChild("Modules"):WaitForChild("NetworkFramework"):WaitForChild("NetworkEvent")
 
 _G.AutoFarm = true
 local skillDelay = 0.05
 local questCheckInterval = 4 
 local lastQuestTime = 0
 local currentTargetRoot = nil
-local lastNPCQuestIndex = 0 
 local teleportConnection = nil
+local lastNpcTarget = ""
+
+local questMap = {
+    {minLv = 0, maxLv = 999, npc = "NPC_Quest1", mob = "Bacon"},
+    {minLv = 1000, maxLv = 1999, npc = "NPC_Quest2", mob = "Bacon Strong"},
+    {minLv = 2000, maxLv = 2999, npc = "NPC_Quest3", mob = "Bacon Traveler"},
+    {minLv = 3000, maxLv = 3999, npc = "NPC_Quest4", mob = "Bacon Fawkes"},
+    {minLv = 4000, maxLv = 4999, npc = "NPC_Quest5", mob = "Bacon Pirate"},
+    {minLv = 5000, maxLv = 5999, npc = "NPC_Quest6", mob = "Bacon Clown"},
+    {minLv = 6000, maxLv = 6999, npc = "NPC_Quest7", mob = "Bacon Tarzan"},
+    {minLv = 7000, maxLv = 7999, npc = "NPC_Quest8", mob = "Gorilla"},
+    {minLv = 8000, maxLv = 8999, npc = "NPC_Quest9", mob = "Bacon Fisherman"},
+    {minLv = 9000, maxLv = 9999, npc = "NPC_Quest10", mob = "Bacon The Deep"},
+    {minLv = 10000, maxLv = 10999, npc = "NPC_Quest11", mob = "Bacon Marine"},
+    {minLv = 11000, maxLv = 11999, npc = "NPC_Quest12", mob = "Bacon Marine Captain"},
+    {minLv = 12000, maxLv = 12999, npc = "NPC_Quest13", mob = "Bacon Rock"},
+    {minLv = 13000, maxLv = 13999, npc = "NPC_Quest14", mob = "Bacon Iron"},
+    {minLv = 14000, maxLv = 14999, npc = "NPC_Quest15", mob = "Bacon Minerals"},
+    {minLv = 15000, maxLv = 15999, npc = "NPC_Quest16", mob = "Bacon Kryptonite"},
+    {minLv = 16000, maxLv = 16999, npc = "NPC_Quest17", mob = "Bacon Snow"},
+    {minLv = 17000, maxLv = 17999, npc = "NPC_Quest18", mob = "Bacon Ice"},
+    {minLv = 18000, maxLv = 18999, npc = "NPC_Quest19", mob = "Bacon Lava"},
+    {minLv = 19000, maxLv = math.huge, npc = "NPC_Quest20", mob = "Bacon Hellfire"}
+}
 
 local function getPlayerLevel()
     local currentLevel = 1
@@ -205,19 +279,32 @@ local function getPlayerLevel()
     return currentLevel
 end
 
-local function getTargetNPC()
+local function getCurrentQuestConfig()
     local level = getPlayerLevel()
-    local npcIndex = math.floor(level / 1000) + 1
-    npcIndex = math.clamp(npcIndex, 1, 20)
-    
-    if npcIndex ~= lastNPCQuestIndex then
-        currentTargetRoot = nil 
-        lastNPCQuestIndex = npcIndex
+    for _, config in ipairs(questMap) do
+        if level >= config.minLv and level <= config.maxLv then
+            return config
+        end
     end
-    
+    return questMap[1]
+end
+
+local function abandonCurrentQuest()
+    pcall(function()
+        local args = {
+            "fire",
+            [3] = "Quest",
+            [4] = "Cancel"
+        }
+        cancelQuestRemote:FireServer(unpack(args))
+    end)
+end
+
+local function getTargetNPC()
+    local config = getCurrentQuestConfig()
     local npcFolder = workspace:FindFirstChild("NpcQuest")
-    if npcFolder then
-        return npcFolder:FindFirstChild("NPC_Quest" .. tostring(npcIndex))
+    if npcFolder and config then
+        return npcFolder:FindFirstChild(config.npc)
     end
     return nil
 end
@@ -260,25 +347,27 @@ local function equipSelectedSlot()
     end)
 end
 
--- Double-click/Double-fire interaction to force bypass old quests
-local function interactWithNPC(npc)
+local function interactWithNPC(npc, isNewNpc)
     if not npc then return end
     local root = npc:FindFirstChild("HumanoidRootPart") or npc:FindFirstChildOfClass("Part")
     if root and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        localPlayer.Character.HumanoidRootPart.CFrame = root.CFrame * CFrame.new(0, 0, -3)
-        task.wait(0.1)
+        local myRoot = localPlayer.Character.HumanoidRootPart
+        
+        myRoot.CFrame = root.CFrame * CFrame.new(0, 0, -3)
+        task.wait(0.15)
+        
+        if isNewNpc then
+            abandonCurrentQuest()
+            task.wait(0.2)
+        end
         
         local prompt = npc:FindFirstChildWhichIsA("ProximityPrompt", true)
         if prompt then
             fireproximityprompt(prompt)
-            task.wait(0.15)
-            fireproximityprompt(prompt) -- Double click to overwrite quest
         else
             local clickDetector = npc:FindFirstChildWhichIsA("ClickDetector", true)
             if clickDetector then
                 fireclickdetector(clickDetector)
-                task.wait(0.15)
-                fireclickdetector(clickDetector) -- Double click to overwrite quest
             end
         end
         task.wait(0.15)
@@ -298,30 +387,24 @@ local function useSkillRemote(skillKey)
     end)
 end
 
-local function getClosestMobToNPC(npc)
-    if not npc then return nil end
-    local npcRoot = npc:FindFirstChild("HumanoidRootPart") or npc:FindFirstChildOfClass("Part")
-    if not npcRoot then return nil end
-
-    local closestMob = nil
-    local shortestDistance = math.huge
-    local mobFolder = workspace:FindFirstChild("Mob")
+local function getLockedMobTarget()
+    local config = getCurrentQuestConfig()
+    if not config then return nil end
     
+    local mobFolder = workspace:FindFirstChild("Mob")
     if mobFolder then
         for _, mob in pairs(mobFolder:GetChildren()) do
-            local root = mob:FindFirstChild("HumanoidRootPart")
-            local humanoid = mob:FindFirstChildOfClass("Humanoid")
-            
-            if root and (not humanoid or humanoid.Health > 0) then
-                local distanceFromNPC = (npcRoot.Position - root.Position).Magnitude
-                if distanceFromNPC < shortestDistance then
-                    shortestDistance = distanceFromNPC
-                    closestMob = root
+            if mob.Name == config.mob then
+                local root = mob:FindFirstChild("HumanoidRootPart")
+                local humanoid = mob:FindFirstChildOfClass("Humanoid")
+                
+                if root and (not humanoid or humanoid.Health > 0) then
+                    return root
                 end
             end
         end
     end
-    return closestMob
+    return nil
 end
 
 if teleportConnection then teleportConnection:Disconnect() end
@@ -349,26 +432,35 @@ end)
 
 local function startFarm()
     task.spawn(function()
+        local firstConfig = getCurrentQuestConfig()
+        if firstConfig then lastNpcTarget = firstConfig.npc end
+        
         while _G.AutoFarm do
             equipSelectedSlot()
             
+            local config = getCurrentQuestConfig()
             local currentNPC = getTargetNPC()
             
             if currentNPC and (tick() - lastQuestTime > questCheckInterval) then
                 currentTargetRoot = nil 
-                interactWithNPC(currentNPC)
+                
+                local isNewNpc = false
+                if config and config.npc ~= lastNpcTarget then
+                    isNewNpc = true
+                    lastNpcTarget = config.npc
+                end
+                
+                interactWithNPC(currentNPC, isNewNpc)
                 lastQuestTime = tick()
             end
             
-            currentNPC = getTargetNPC()
-            
-            local targetMobRoot = getClosestMobToNPC(currentNPC)
+            local targetMobRoot = getLockedMobTarget()
             if targetMobRoot then
                 currentTargetRoot = targetMobRoot
                 
                 local orderedSkills = {"Z", "X", "C", "V"}
                 for _, skill in ipairs(orderedSkills) do
-                    if not _G.AutoFarm or currentTargetRoot ~= targetMobRoot or getTargetNPC() ~= currentNPC then 
+                    if not _G.AutoFarm or currentTargetRoot ~= targetMobRoot then 
                         break 
                     end
                     
