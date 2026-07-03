@@ -1,5 +1,11 @@
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
+local workspace = game:GetService("Workspace")
+local players = game:GetService("Players")
+local runService = game:GetService("RunService")
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local localPlayer = players.LocalPlayer
+local camera = workspace.CurrentCamera
 
 local IntroGui = Instance.new("ScreenGui")
 IntroGui.Parent = CoreGui
@@ -10,7 +16,6 @@ IntroFrame.Parent = IntroGui
 IntroFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 IntroFrame.Size = UDim2.new(0, 320, 0, 100)
 IntroFrame.Position = UDim2.new(0.5, -160, 0.5, -50)
-IntroFrame.BackgroundTransparency = 0
 IntroFrame.BorderSizePixel = 0
 
 local IntroCorner = Instance.new("UICorner")
@@ -31,7 +36,6 @@ IntroText.Text = "Official YouTube : Earth711\n<font size='16' color='rgb(180,18
 IntroText.RichText = true
 IntroText.TextColor3 = Color3.fromRGB(255, 255, 255)
 IntroText.TextSize = 20
-IntroText.TextTransparency = 0
 
 task.wait(4.0)
 
@@ -145,11 +149,7 @@ for i, skill in ipairs(skillNames) do
     
     btn.MouseButton1Click:Connect(function()
         _G.SelectedSkills[skill] = not _G.SelectedSkills[skill]
-        if _G.SelectedSkills[skill] then
-            btn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
-        else
-            btn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
-        end
+        btn.BackgroundColor3 = _G.SelectedSkills[skill] and Color3.fromRGB(50, 150, 50) or Color3.fromRGB(150, 50, 50)
     end)
 end
 
@@ -177,11 +177,7 @@ for slotNum = 1, 5 do
     btn.TextSize = 14
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     
-    if _G.SelectedSlot == slotNum then
-        btn.BackgroundColor3 = Color3.fromRGB(50, 50, 150)
-    else
-        btn.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
-    end
+    btn.BackgroundColor3 = (_G.SelectedSlot == slotNum) and Color3.fromRGB(50, 50, 150) or Color3.fromRGB(60, 60, 65)
     
     local btnCorner = Instance.new("UICorner")
     btnCorner.CornerRadius = UDim.new(0, 4)
@@ -192,11 +188,7 @@ for slotNum = 1, 5 do
     btn.MouseButton1Click:Connect(function()
         _G.SelectedSlot = slotNum
         for s, b in pairs(slotButtons) do
-            if s == slotNum then
-                b.BackgroundColor3 = Color3.fromRGB(50, 50, 150)
-            else
-                b.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
-            end
+            b.BackgroundColor3 = (s == slotNum) and Color3.fromRGB(50, 50, 150) or Color3.fromRGB(60, 60, 65)
         end
     end)
 end
@@ -204,33 +196,21 @@ end
 local isMinimized = false
 MinButton.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
-    if isMinimized then
-        ContentFrame.Visible = false
-        MainFrame.Size = UDim2.new(0, 220, 0, 35)
-        MinButton.Text = "+"
-    else
-        ContentFrame.Visible = true
-        MainFrame.Size = UDim2.new(0, 220, 0, 250)
-        MinButton.Text = "-"
-    end
+    ContentFrame.Visible = not isMinimized
+    MainFrame.Size = isMinimized and UDim2.new(0, 220, 0, 35) or UDim2.new(0, 220, 0, 250)
+    MinButton.Text = isMinimized and "+" or "-"
 end)
-
-local workspace = game:GetService("Workspace")
-local players = game:GetService("Players")
-local runService = game:GetService("RunService")
-local replicatedStorage = game:GetService("ReplicatedStorage")
-local localPlayer = players.LocalPlayer
 
 local actionRemote = replicatedStorage:WaitForChild("Remotes"):WaitForChild("Action")
 local cancelQuestRemote = replicatedStorage:WaitForChild("Modules"):WaitForChild("NetworkFramework"):WaitForChild("NetworkEvent")
-
 _G.AutoFarm = true
 local skillDelay = 0.05
-local questCheckInterval = 4 
+local questCheckInterval = 3
 local lastQuestTime = 0
 local currentTargetRoot = nil
 local teleportConnection = nil
 local lastNpcTarget = ""
+local isProcessingQuest = false
 
 local questMap = {
     {minLv = 0, maxLv = 999, npc = "NPC_Quest1", mob = "Bacon"},
@@ -254,6 +234,13 @@ local questMap = {
     {minLv = 18000, maxLv = 18999, npc = "NPC_Quest19", mob = "Bacon Lava"},
     {minLv = 19000, maxLv = math.huge, npc = "NPC_Quest20", mob = "Bacon Hellfire"}
 }
+
+local function activateBuso()
+    pcall(function()
+        local busoArgs = {"Misc", "buso"}
+        actionRemote:FireServer(unpack(busoArgs))
+    end)
+end
 
 local function getPlayerLevel()
     local currentLevel = 1
@@ -289,6 +276,22 @@ local function getCurrentQuestConfig()
     return questMap[1]
 end
 
+local function closeQuestUI()
+    pcall(function()
+        local playerGui = localPlayer:FindFirstChild("PlayerGui")
+        if playerGui then
+            local frameQuest = playerGui:FindFirstChild("Frame_Quest", true)
+            if frameQuest then
+                local closeButton = frameQuest:FindFirstChild("Close_")
+                if closeButton and (closeButton:IsA("TextButton") or closeButton:IsA("ImageButton")) then
+                    firesignal(closeButton.MouseButton1Click)
+                    firesignal(closeButton.MouseButton1Down)
+                end
+            end
+        end
+    end)
+end
+
 local function abandonCurrentQuest()
     pcall(function()
         local args = {
@@ -298,6 +301,7 @@ local function abandonCurrentQuest()
         }
         cancelQuestRemote:FireServer(unpack(args))
     end)
+    closeQuestUI()
 end
 
 local function getTargetNPC()
@@ -315,17 +319,13 @@ local function getToolAtSlot(slotIndex)
     
     if character then
         local equippedTool = character:FindFirstChildOfClass("Tool")
-        if equippedTool then
-            return equippedTool
-        end
+        if equippedTool then return equippedTool end
     end
     
     if backpack then
         local toolItems = {}
         for _, item in ipairs(backpack:GetChildren()) do
-            if item:IsA("Tool") then
-                table.insert(toolItems, item)
-            end
+            if item:IsA("Tool") then table.insert(toolItems, item) end
         end
         return toolItems[slotIndex]
     end
@@ -348,17 +348,20 @@ local function equipSelectedSlot()
 end
 
 local function interactWithNPC(npc, isNewNpc)
-    if not npc then return end
+    if not npc or not localPlayer.Character then return end
     local root = npc:FindFirstChild("HumanoidRootPart") or npc:FindFirstChildOfClass("Part")
-    if root and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        local myRoot = localPlayer.Character.HumanoidRootPart
+    local myRoot = localPlayer.Character:FindFirstChild("HumanoidRootPart")
+    
+    if root and myRoot then
+        isProcessingQuest = true
+        currentTargetRoot = nil
         
         myRoot.CFrame = root.CFrame * CFrame.new(0, 0, -3)
-        task.wait(0.15)
+        task.wait(0.4)
         
         if isNewNpc then
             abandonCurrentQuest()
-            task.wait(0.2)
+            task.wait(2.0)
         end
         
         local prompt = npc:FindFirstChildWhichIsA("ProximityPrompt", true)
@@ -370,7 +373,9 @@ local function interactWithNPC(npc, isNewNpc)
                 fireclickdetector(clickDetector)
             end
         end
-        task.wait(0.15)
+        
+        task.wait(0.4)
+        isProcessingQuest = false
     end
 end
 
@@ -378,12 +383,7 @@ local function useSkillRemote(skillKey)
     pcall(function()
         local targetTool = getToolAtSlot(_G.SelectedSlot)
         local toolName = targetTool and targetTool.Name or "Combat"
-        
-        local args = {
-            toolName,
-            skillKey
-        }
-        actionRemote:FireServer(unpack(args))
+        actionRemote:FireServer(toolName, skillKey)
     end)
 end
 
@@ -397,7 +397,6 @@ local function getLockedMobTarget()
             if mob.Name == config.mob then
                 local root = mob:FindFirstChild("HumanoidRootPart")
                 local humanoid = mob:FindFirstChildOfClass("Humanoid")
-                
                 if root and (not humanoid or humanoid.Health > 0) then
                     return root
                 end
@@ -409,11 +408,21 @@ end
 
 if teleportConnection then teleportConnection:Disconnect() end
 teleportConnection = runService.Heartbeat:Connect(function()
-    if _G.AutoFarm and currentTargetRoot and currentTargetRoot.Parent and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        local char = localPlayer.Character
-        local root = char.HumanoidRootPart
+    if _G.AutoFarm and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local root = localPlayer.Character.HumanoidRootPart
         
-        root.CFrame = (currentTargetRoot.CFrame * CFrame.new(0, 7, 0)) * CFrame.Angles(math.rad(-90), 0, 0)
+        for _, part in pairs(localPlayer.Character:GetChildren()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+        
+        if currentTargetRoot and currentTargetRoot.Parent then
+            root.CFrame = (currentTargetRoot.CFrame * CFrame.new(0, 7, 0)) * CFrame.Angles(math.rad(-90), 0, 0)
+        else
+            root.Velocity = Vector3.new(0, 0, 0)
+            root.RotVelocity = Vector3.new(0, 0, 0)
+        end
         
         if not root:FindFirstChild("VelocityHandler") then
             local bv = Instance.new("BodyVelocity")
@@ -435,59 +444,82 @@ local function startFarm()
         local firstConfig = getCurrentQuestConfig()
         if firstConfig then lastNpcTarget = firstConfig.npc end
         
+        activateBuso()
+        
         while _G.AutoFarm do
-            equipSelectedSlot()
-            
-            local config = getCurrentQuestConfig()
-            local currentNPC = getTargetNPC()
-            
-            if currentNPC and (tick() - lastQuestTime > questCheckInterval) then
-                currentTargetRoot = nil 
+            if not isProcessingQuest then
+                equipSelectedSlot()
                 
-                local isNewNpc = false
-                if config and config.npc ~= lastNpcTarget then
-                    isNewNpc = true
-                    lastNpcTarget = config.npc
-                end
+                local config = getCurrentQuestConfig()
+                local currentNPC = getTargetNPC()
                 
-                interactWithNPC(currentNPC, isNewNpc)
-                lastQuestTime = tick()
-            end
-            
-            local targetMobRoot = getLockedMobTarget()
-            if targetMobRoot then
-                currentTargetRoot = targetMobRoot
-                
-                local orderedSkills = {"Z", "X", "C", "V"}
-                for _, skill in ipairs(orderedSkills) do
-                    if not _G.AutoFarm or currentTargetRoot ~= targetMobRoot then 
-                        break 
+                if currentNPC and (tick() - lastQuestTime > questCheckInterval) then
+                    local isNewNpc = false
+                    if config and config.npc ~= lastNpcTarget then
+                        isNewNpc = true
+                        lastNpcTarget = config.npc
                     end
                     
-                    if _G.SelectedSkills[skill] then
-                        useSkillRemote(string.lower(skill))
-                        task.wait(skillDelay)
-                    end
+                    interactWithNPC(currentNPC, isNewNpc)
+                    lastQuestTime = tick()
                 end
-            else
-                currentTargetRoot = nil
-                task.wait(0.05)
+                
+                local targetMobRoot = getLockedMobTarget()
+                if targetMobRoot and not isProcessingQuest then
+                    currentTargetRoot = targetMobRoot
+                    
+                    local orderedSkills = {"Z", "X", "C", "V"}
+                    for _, skill in ipairs(orderedSkills) do
+                        if not _G.AutoFarm or currentTargetRoot ~= targetMobRoot or isProcessingQuest then 
+                            break 
+                        end
+                        
+                        if _G.SelectedSkills[skill] then
+                            useSkillRemote(string.lower(skill))
+                            task.wait(skillDelay)
+                        end
+                    end
+                else
+                    currentTargetRoot = nil
+                    task.wait(0.1)
+                end
             end
             task.wait(0.01)
         end
     end)
 end
 
+task.spawn(function()
+    while true do
+        if _G.AutoFarm then
+            local config = getCurrentQuestConfig()
+            if config and config.npc ~= lastNpcTarget and not isProcessingQuest then
+                abandonCurrentQuest()
+            end
+        end
+        task.wait(0.5)
+    end
+end)
+
+localPlayer.CharacterAdded:Connect(function(char)
+    task.wait(2.0)
+    if _G.AutoFarm then
+        activateBuso()
+    end
+end)
+
 ToggleButton.MouseButton1Click:Connect(function()
     _G.AutoFarm = not _G.AutoFarm
     if _G.AutoFarm then
         ToggleButton.Text = "STOP AUTOFARM"
         ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        activateBuso()
         startFarm()
     else
         ToggleButton.Text = "START AUTOFARM"
         ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
         currentTargetRoot = nil
+        isProcessingQuest = false
         if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
             local bv = localPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler")
             if bv then bv:Destroy() end
