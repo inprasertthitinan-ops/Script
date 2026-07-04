@@ -1,6 +1,9 @@
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 
+if CoreGui:FindFirstChild("PremiumAutoFarmUI") then CoreGui.PremiumAutoFarmUI:Destroy() end
+if CoreGui:FindFirstChild("IntroScreenGui") then CoreGui.IntroScreenGui:Destroy() end
+
 local IntroGui = Instance.new("ScreenGui")
 IntroGui.Parent = CoreGui
 IntroGui.Name = "IntroScreenGui"
@@ -10,7 +13,6 @@ IntroFrame.Parent = IntroGui
 IntroFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 IntroFrame.Size = UDim2.new(0, 320, 0, 100)
 IntroFrame.Position = UDim2.new(0.5, -160, 0.5, -50)
-IntroFrame.BackgroundTransparency = 0
 IntroFrame.BorderSizePixel = 0
 
 local IntroCorner = Instance.new("UICorner")
@@ -27,36 +29,28 @@ IntroText.Parent = IntroFrame
 IntroText.BackgroundTransparency = 1
 IntroText.Size = UDim2.new(1, 0, 1, 0)
 IntroText.Font = Enum.Font.SourceSansBold
-IntroText.Text = "Official YouTube : Earth711\n<font size='16' color='rgb(180,180,180)'>Free Script</font>"
+IntroText.Text = "Official YouTube : Earth711\n<font size='16' color='rgb(180,180,180)'>Free Script - Part 1</font>"
 IntroText.RichText = true
 IntroText.TextColor3 = Color3.fromRGB(255, 255, 255)
 IntroText.TextSize = 20
-IntroText.TextTransparency = 0
 
-task.wait(4.0)
-
-local fadeInfo = TweenInfo.new(0.9, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+task.wait(1)
+local fadeInfo = TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
 local textTween = TweenService:Create(IntroText, fadeInfo, {TextTransparency = 1})
 local frameTween = TweenService:Create(IntroFrame, fadeInfo, {BackgroundTransparency = 1})
 local strokeTween = TweenService:Create(IntroStroke, fadeInfo, {Transparency = 1})
+textTween:Play() frameTween:Play() strokeTween:Play()
+frameTween.Completed:Connect(function() IntroGui:Destroy() end)
 
-textTween:Play()
-frameTween:Play()
-strokeTween:Play()
-
-frameTween.Completed:Connect(function()
-    IntroGui:Destroy()
-end)
-
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = CoreGui
-ScreenGui.Name = "PremiumAutoFarmUI"
+_G.MainGuiScreen = Instance.new("ScreenGui")
+_G.MainGuiScreen.Parent = CoreGui
+_G.MainGuiScreen.Name = "PremiumAutoFarmUI"
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Parent = ScreenGui
+MainFrame.Parent = _G.MainGuiScreen
 MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-MainFrame.Position = UDim2.new(0.5, -110, 0.4, -120)
-MainFrame.Size = UDim2.new(0, 220, 0, 250)
+MainFrame.Position = UDim2.new(0.5, -240, 0.4, -120)
+MainFrame.Size = UDim2.new(0, 220, 0, 270)
 MainFrame.Active = true
 MainFrame.Draggable = true
 
@@ -68,11 +62,11 @@ local Title = Instance.new("TextLabel")
 Title.Parent = MainFrame
 Title.BackgroundTransparency = 1
 Title.Position = UDim2.new(0, 10, 0, 5)
-Title.Size = UDim2.new(0, 150, 0, 25)
+Title.Size = UDim2.new(0, 160, 0, 25)
 Title.Font = Enum.Font.SourceSansBold
-Title.Text = "AUTO FARM v2"
+Title.Text = "FLEX BUG ALL IN ONE"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.TextSize = 16
+Title.TextSize = 14
 Title.TextXAlignment = Enum.TextXAlignment.Left
 
 local MinButton = Instance.new("TextButton")
@@ -89,19 +83,19 @@ local MinCorner = Instance.new("UICorner")
 MinCorner.CornerRadius = UDim.new(0, 6)
 MinCorner.Parent = MinButton
 
-local ContentFrame = Instance.new("Frame")
-ContentFrame.Parent = MainFrame
-ContentFrame.BackgroundTransparency = 1
-ContentFrame.Position = UDim2.new(0, 0, 0, 35)
-ContentFrame.Size = UDim2.new(1, 0, 1, -35)
+_G.UIContentFrame = Instance.new("Frame")
+_G.UIContentFrame.Parent = MainFrame
+_G.UIContentFrame.BackgroundTransparency = 1
+_G.UIContentFrame.Position = UDim2.new(0, 0, 0, 35)
+_G.UIContentFrame.Size = UDim2.new(1, 0, 1, -35)
 
 local ToggleButton = Instance.new("TextButton")
-ToggleButton.Parent = ContentFrame
-ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+ToggleButton.Parent = _G.UIContentFrame
+ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
 ToggleButton.Position = UDim2.new(0, 15, 0, 0)
 ToggleButton.Size = UDim2.new(0, 190, 0, 35)
 ToggleButton.Font = Enum.Font.SourceSansBold
-ToggleButton.Text = "STOP AUTOFARM"
+ToggleButton.Text = "START AUTOFARM"
 ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 ToggleButton.TextSize = 16
 
@@ -110,7 +104,7 @@ ToggleCorner.CornerRadius = UDim.new(0, 6)
 ToggleCorner.Parent = ToggleButton
 
 local SkillLabel = Instance.new("TextLabel")
-SkillLabel.Parent = ContentFrame
+SkillLabel.Parent = _G.UIContentFrame
 SkillLabel.BackgroundTransparency = 1
 SkillLabel.Position = UDim2.new(0, 15, 0, 45)
 SkillLabel.Size = UDim2.new(0, 190, 0, 20)
@@ -125,19 +119,14 @@ _G.SelectedSkills = {Z = true, X = true, C = true, V = false}
 
 for i, skill in ipairs(skillNames) do
     local btn = Instance.new("TextButton")
-    btn.Parent = ContentFrame
+    btn.Parent = _G.UIContentFrame
     btn.Size = UDim2.new(0, 40, 0, 30)
     btn.Position = UDim2.new(0, 15 + ((i-1) * 48), 0, 70)
     btn.Font = Enum.Font.SourceSansBold
     btn.Text = skill
     btn.TextSize = 14
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    
-    if _G.SelectedSkills[skill] then
-        btn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
-    else
-        btn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
-    end
+    btn.BackgroundColor3 = _G.SelectedSkills[skill] and Color3.fromRGB(50, 150, 50) or Color3.fromRGB(150, 50, 50)
     
     local btnCorner = Instance.new("UICorner")
     btnCorner.CornerRadius = UDim.new(0, 4)
@@ -145,16 +134,12 @@ for i, skill in ipairs(skillNames) do
     
     btn.MouseButton1Click:Connect(function()
         _G.SelectedSkills[skill] = not _G.SelectedSkills[skill]
-        if _G.SelectedSkills[skill] then
-            btn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
-        else
-            btn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
-        end
+        btn.BackgroundColor3 = _G.SelectedSkills[skill] and Color3.fromRGB(50, 150, 50) or Color3.fromRGB(150, 50, 50)
     end)
 end
 
 local SlotLabel = Instance.new("TextLabel")
-SlotLabel.Parent = ContentFrame
+SlotLabel.Parent = _G.UIContentFrame
 SlotLabel.BackgroundTransparency = 1
 SlotLabel.Position = UDim2.new(0, 15, 0, 110)
 SlotLabel.Size = UDim2.new(0, 190, 0, 20)
@@ -169,237 +154,446 @@ _G.SelectedSlot = 1
 
 for slotNum = 1, 5 do
     local btn = Instance.new("TextButton")
-    btn.Parent = ContentFrame
+    btn.Parent = _G.UIContentFrame
     btn.Size = UDim2.new(0, 34, 0, 30)
     btn.Position = UDim2.new(0, 15 + ((slotNum-1) * 38), 0, 135)
     btn.Font = Enum.Font.SourceSansBold
     btn.Text = tostring(slotNum)
     btn.TextSize = 14
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    
-    if _G.SelectedSlot == slotNum then
-        btn.BackgroundColor3 = Color3.fromRGB(50, 50, 150)
-    else
-        btn.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
-    end
+    btn.BackgroundColor3 = (_G.SelectedSlot == slotNum) and Color3.fromRGB(50, 50, 150) or Color3.fromRGB(60, 60, 65)
     
     local btnCorner = Instance.new("UICorner")
     btnCorner.CornerRadius = UDim.new(0, 4)
     btnCorner.Parent = btn
-    
     slotButtons[slotNum] = btn
     
     btn.MouseButton1Click:Connect(function()
         _G.SelectedSlot = slotNum
-        for s, b in pairs(slotButtons) do
-            if s == slotNum then
-                b.BackgroundColor3 = Color3.fromRGB(50, 50, 150)
-            else
-                b.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
-            end
-        end
+        for s, b in pairs(slotButtons) do b.BackgroundColor3 = (s == slotNum) and Color3.fromRGB(50, 50, 150) or Color3.fromRGB(60, 60, 65) end
     end)
 end
 
-local isMinimized = false
-MinButton.MouseButton1Click:Connect(function()
-    isMinimized = not isMinimized
-    if isMinimized then
-        ContentFrame.Visible = false
-        MainFrame.Size = UDim2.new(0, 220, 0, 35)
-        MinButton.Text = "+"
+_G.MainFrameObj = MainFrame
+_G.MainToggleButton = ToggleButton
+_G.MinButtonObj = MinButton
+local MainFrame = _G.MainFrameObj
+local ContentFrame = _G.UIContentFrame
+local ScreenGui = _G.MainGuiScreen
+
+local OpenMatMenuButton = Instance.new("TextButton")
+OpenMatMenuButton.Parent = ContentFrame
+OpenMatMenuButton.BackgroundColor3 = Color3.fromRGB(70, 70, 80)
+OpenMatMenuButton.Position = UDim2.new(0, 15, 0, 175)
+OpenMatMenuButton.Size = UDim2.new(0, 190, 0, 35)
+OpenMatMenuButton.Font = Enum.Font.SourceSansBold
+OpenMatMenuButton.Text = "OPEN MATERIAL MENU ▶"
+OpenMatMenuButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+OpenMatMenuButton.TextSize = 13
+
+local OpenMatCorner = Instance.new("UICorner")
+OpenMatCorner.CornerRadius = UDim.new(0, 6)
+OpenMatCorner.Parent = OpenMatMenuButton
+
+local OpenBossMenuButton = Instance.new("TextButton")
+OpenBossMenuButton.Parent = ContentFrame
+OpenBossMenuButton.BackgroundColor3 = Color3.fromRGB(130, 50, 150)
+OpenBossMenuButton.Position = UDim2.new(0, 15, 0, 215)
+OpenBossMenuButton.Size = UDim2.new(0, 190, 0, 35)
+OpenBossMenuButton.Font = Enum.Font.SourceSansBold
+OpenBossMenuButton.Text = "OPEN BOSS MENU 👿"
+OpenBossMenuButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+OpenBossMenuButton.TextSize = 13
+
+local OpenBossCorner = Instance.new("UICorner")
+OpenBossCorner.CornerRadius = UDim.new(0, 6)
+OpenBossCorner.Parent = OpenBossMenuButton
+
+_G.TargetBossToSummon = "GooGooGaaGaa" 
+_G.AutoSummonBoss = false
+_G.AutoKillBoss = false
+
+local BossFrame = Instance.new("Frame")
+BossFrame.Parent = ScreenGui
+BossFrame.BackgroundColor3 = Color3.fromRGB(35, 25, 40)
+BossFrame.Position = UDim2.new(0.5, 0, 0.4, -120)
+BossFrame.Size = UDim2.new(0, 200, 0, 185)
+BossFrame.Active = true
+BossFrame.Draggable = true
+BossFrame.Visible = false
+
+local BossFrameCorner = Instance.new("UICorner")
+BossFrameCorner.CornerRadius = UDim.new(0, 10)
+BossFrameCorner.Parent = BossFrame
+
+local BossFrameStroke = Instance.new("UIStroke")
+BossFrameStroke.Color = Color3.fromRGB(130, 50, 150)
+BossFrameStroke.Thickness = 1.5
+BossFrameStroke.Parent = BossFrame
+
+local BossTitle = Instance.new("TextLabel")
+BossTitle.Parent = BossFrame
+BossTitle.BackgroundTransparency = 1
+BossTitle.Position = UDim2.new(0, 10, 0, 5)
+BossTitle.Size = UDim2.new(0, 150, 0, 25)
+BossTitle.Font = Enum.Font.SourceSansBold
+BossTitle.Text = "BOSS CONTROLLER"
+BossTitle.TextColor3 = Color3.fromRGB(235, 180, 255)
+BossTitle.TextSize = 13
+BossTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local BossCloseBtn = Instance.new("TextButton")
+BossCloseBtn.Parent = BossFrame
+BossCloseBtn.BackgroundTransparency = 1
+BossCloseBtn.Position = UDim2.new(1, -25, 0, 5)
+BossCloseBtn.Size = UDim2.new(0, 20, 0, 20)
+BossCloseBtn.Font = Enum.Font.SourceSansBold
+BossCloseBtn.Text = "X"
+BossCloseBtn.TextColor3 = Color3.fromRGB(200, 50, 50)
+BossCloseBtn.TextSize = 14
+BossCloseBtn.MouseButton1Click:Connect(function() BossFrame.Visible = false end)
+
+local BossSelectButton = Instance.new("TextButton")
+BossSelectButton.Parent = BossFrame
+BossSelectButton.BackgroundColor3 = Color3.fromRGB(55, 40, 65)
+BossSelectButton.Position = UDim2.new(0, 15, 0, 35)
+BossSelectButton.Size = UDim2.new(0, 170, 0, 30)
+BossSelectButton.Font = Enum.Font.SourceSansBold
+BossSelectButton.Text = "Target: GooGooGaaGaa"
+BossSelectButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+BossSelectButton.TextSize = 12
+
+local BossSelectCorner = Instance.new("UICorner")
+BossSelectCorner.CornerRadius = UDim.new(0, 5)
+BossSelectCorner.Parent = BossSelectButton
+
+BossSelectButton.MouseButton1Click:Connect(function()
+    if _G.TargetBossToSummon == "GooGooGaaGaa" then
+        _G.TargetBossToSummon = "Dark Bacon"
+        BossSelectButton.Text = "Target: Dark Bacon"
     else
-        ContentFrame.Visible = true
-        MainFrame.Size = UDim2.new(0, 220, 0, 250)
-        MinButton.Text = "-"
+        _G.TargetBossToSummon = "GooGooGaaGaa"
+        BossSelectButton.Text = "Target: GooGooGaaGaa"
     end
 end)
 
+local SummonToggleButton = Instance.new("TextButton")
+SummonToggleButton.Parent = BossFrame
+SummonToggleButton.BackgroundColor3 = Color3.fromRGB(110, 40, 130)
+SummonToggleButton.Position = UDim2.new(0, 15, 0, 75)
+SummonToggleButton.Size = UDim2.new(0, 170, 0, 35)
+SummonToggleButton.Font = Enum.Font.SourceSansBold
+SummonToggleButton.Text = "AUTO SUMMON: OFF"
+SummonToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+SummonToggleButton.TextSize = 13
+
+local SummonToggleCorner = Instance.new("UICorner")
+SummonToggleCorner.CornerRadius = UDim.new(0, 6)
+SummonToggleCorner.Parent = SummonToggleButton
+
+local KillBossToggleButton = Instance.new("TextButton")
+KillBossToggleButton.Parent = BossFrame
+KillBossToggleButton.BackgroundColor3 = Color3.fromRGB(210, 85, 30)
+KillBossToggleButton.Position = UDim2.new(0, 15, 0, 120)
+KillBossToggleButton.Size = UDim2.new(0, 170, 0, 35)
+KillBossToggleButton.Font = Enum.Font.SourceSansBold
+KillBossToggleButton.Text = "AUTO KILL BOSS: OFF"
+KillBossToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+KillBossToggleButton.TextSize = 13
+
+local KillBossToggleCorner = Instance.new("UICorner")
+KillBossToggleCorner.CornerRadius = UDim.new(0, 6)
+KillBossToggleCorner.Parent = KillBossToggleButton
+
+_G.UpdateBossUIState = function()
+    KillBossToggleButton.Text = _G.AutoKillBoss and "AUTO KILL BOSS: ON" or "AUTO KILL BOSS: OFF"
+    KillBossToggleButton.BackgroundColor3 = _G.AutoKillBoss and Color3.fromRGB(50, 180, 50) or Color3.fromRGB(210, 85, 30)
+    SummonToggleButton.Text = _G.AutoSummonBoss and "AUTO SUMMON: ON" or "AUTO SUMMON: OFF"
+    SummonToggleButton.BackgroundColor3 = _G.AutoSummonBoss and Color3.fromRGB(50, 180, 50) or Color3.fromRGB(110, 40, 130)
+end
+
+KillBossToggleButton.MouseButton1Click:Connect(function()
+    _G.AutoKillBoss = not _G.AutoKillBoss
+    if _G.AutoKillBoss then
+        _G.AutoFarm = false _G.AutoMaterial = false
+        if _G.MainToggleButton then _G.MainToggleButton.Text = "START AUTOFARM" _G.MainToggleButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50) end
+        if _G.MatToggleButtonObj then _G.MatToggleButtonObj.Text = "START MAT FARM" _G.MatToggleButtonObj.BackgroundColor3 = Color3.fromRGB(50, 150, 50) end
+        if _G.StartFarmLoopFunc then _G.StartFarmLoopFunc() end
+    end
+    _G.UpdateBossUIState()
+end)
+
+SummonToggleButton.MouseButton1Click:Connect(function()
+    _G.AutoSummonBoss = not _G.AutoSummonBoss
+    _G.UpdateBossUIState()
+end)
+
+OpenBossMenuButton.MouseButton1Click:Connect(function() BossFrame.Visible = not BossFrame.Visible end)
+
+local MaterialFrame = Instance.new("Frame")
+MaterialFrame.Parent = MainFrame
+MaterialFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+MaterialFrame.Position = UDim2.new(1, 5, 0, 0)
+MaterialFrame.Size = UDim2.new(0, 270, 0, 270)
+MaterialFrame.Visible = false
+
+local MatCorner = Instance.new("UICorner")
+MatCorner.CornerRadius = UDim.new(0, 10)
+MatCorner.Parent = MaterialFrame
+
+local MatToggleButton = Instance.new("TextButton")
+MatToggleButton.Parent = MaterialFrame
+MatToggleButton.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+MatToggleButton.Position = UDim2.new(0, 15, 0, 35)
+MatToggleButton.Size = UDim2.new(0, 240, 0, 35)
+MatToggleButton.Font = Enum.Font.SourceSansBold
+MatToggleButton.Text = "START MAT FARM"
+MatToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MatToggleButton.TextSize = 14
+_G.MatToggleButtonObj = MatToggleButton
+
+local MatToggleCorner = Instance.new("UICorner")
+MatToggleCorner.CornerRadius = UDim.new(0, 6)
+MatToggleCorner.Parent = MatToggleButton
+
+local MatScroll = Instance.new("ScrollingFrame")
+MatScroll.Parent = MaterialFrame
+MatScroll.BackgroundTransparency = 1
+MatScroll.Position = UDim2.new(0, 15, 0, 100)
+MatScroll.Size = UDim2.new(0, 240, 0, 155)
+MatScroll.CanvasSize = UDim2.new(0, 0, 0, 600)
+MatScroll.ScrollBarThickness = 4
+
+local MatListLayout = Instance.new("UIListLayout")
+MatListLayout.Parent = MatScroll
+MatListLayout.Padding = UDim.new(0, 6)
+
+_G.SelectedMatMobs = {}
+local mobGroupTargets = {
+    {displayName = "Bacon (Wood)", mobName = "Bacon", enabled = true},
+    {displayName = "Bacon Strong (Dumbbell)", mobName = "Bacon Strong", enabled = false},
+    {displayName = "Gorilla (Old Iron)", mobName = "Gorilla", enabled = false},
+    {displayName = "Bacon Tarzan (Old Rock)", mobName = "Bacon Tarzan", enabled = false},
+    {displayName = "Bacon Pirate (Iron)", mobName = "Bacon Pirate", enabled = false},
+    {displayName = "Bacon Clown (Orb Spirit)", mobName = "Bacon Clown", enabled = false},
+    {displayName = "Bacon Traveler (Iron Pipe)", mobName = "Bacon Traveler", enabled = false},
+    {displayName = "Bacon Fawkes (Gold)", mobName = "Bacon Fawkes", enabled = false},
+    {displayName = "Bacon Fisherman (Fish)", mobName = "Bacon Fisherman", enabled = false},
+    {displayName = "Bacon The Deep (Orb Water)", mobName = "Bacon The Deep", enabled = false},
+    {displayName = "Marine Captain (Orb Green)", mobName = "Bacon Marine Captain", enabled = false},
+    {displayName = "Bacon Iron (Holy Stone)", mobName = "Bacon Iron", enabled = false},
+    {displayName = "Bacon Kryptonite (Wind Stone)", mobName = "Bacon Minerals", enabled = false},
+    {displayName = "Bacon Snow (Book)", mobName = "Bacon Snow", enabled = false},
+    {displayName = "Bacon Ice (Cursed Wood)", mobName = "Bacon Ice", enabled = false},
+    {displayName = "Bacon Lava (Orb Fire)", mobName = "Bacon Lava", enabled = false},
+    {displayName = "Bacon Hellfire (Orb Dragon)", mobName = "Bacon Hellfire", enabled = false}
+}
+
+for i, group in ipairs(mobGroupTargets) do
+    _G.SelectedMatMobs[group.mobName] = group.enabled
+    local row = Instance.new("TextButton")
+    row.Parent = MatScroll
+    row.Size = UDim2.new(1, -5, 0, 32)
+    row.BackgroundColor3 = group.enabled and Color3.fromRGB(45, 75, 45) or Color3.fromRGB(45, 45, 50)
+    row.Font = Enum.Font.SourceSansBold
+    row.Text = "  " .. group.displayName
+    row.TextColor3 = Color3.fromRGB(240, 240, 240)
+    row.TextSize = 11
+    row.TextXAlignment = Enum.TextXAlignment.Left
+    local rowCorner = Instance.new("UICorner") rowCorner.CornerRadius = UDim.new(0, 5) rowCorner.Parent = row
+    
+    row.MouseButton1Click:Connect(function()
+        _G.HasTeleportedToIsland = false
+        for _, g in ipairs(mobGroupTargets) do _G.SelectedMatMobs[g.mobName] = false end
+        _G.SelectedMatMobs[group.mobName] = true
+        for _, child in pairs(MatScroll:GetChildren()) do if child:IsA("TextButton") then child.BackgroundColor3 = Color3.fromRGB(45, 45, 50) end end
+        row.BackgroundColor3 = Color3.fromRGB(45, 75, 45)
+    end)
+end
+
+local matMenuOpen = false
+OpenMatMenuButton.MouseButton1Click:Connect(function()
+    matMenuOpen = not matMenuOpen
+    MaterialFrame.Visible = matMenuOpen
+    OpenMatMenuButton.Text = matMenuOpen and "CLOSE MATERIAL MENU ◀" or "OPEN MATERIAL MENU ▶"
+    OpenMatMenuButton.BackgroundColor3 = matMenuOpen and Color3.fromRGB(30, 120, 180) or Color3.fromRGB(70, 70, 80)
+end)
+
+_G.MinButtonObj.MouseButton1Click:Connect(function()
+    local isMinimized = (_G.MinButtonObj.Text == "-")
+    ContentFrame.Visible = not isMinimized
+    MaterialFrame.Visible = (not isMinimized) and matMenuOpen or false
+    MainFrame.Size = isMinimized and UDim2.new(0, 220, 0, 35) or UDim2.new(0, 220, 0, 270)
+    _G.MinButtonObj.Text = isMinimized and "+" or "-"
+end)
+
+_G.MainToggleButton.MouseButton1Click:Connect(function()
+    _G.AutoFarm = not _G.AutoFarm
+    if _G.AutoFarm then
+        _G.AutoMaterial = false _G.AutoKillBoss = false _G.UpdateBossUIState()
+        MatToggleButton.Text = "START MAT FARM" MatToggleButton.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+        _G.MainToggleButton.Text = "STOP AUTOFARM" _G.MainToggleButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        if _G.StartFarmLoopFunc then _G.StartFarmLoopFunc() end
+    else
+        _G.MainToggleButton.Text = "START AUTOFARM" _G.MainToggleButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+    end
+end)
+
+MatToggleButton.MouseButton1Click:Connect(function()
+    _G.AutoMaterial = not _G.AutoMaterial
+    if _G.AutoMaterial then
+        _G.AutoFarm = false _G.AutoKillBoss = false _G.HasTeleportedToIsland = false _G.UpdateBossUIState()
+        _G.MainToggleButton.Text = "START AUTOFARM" _G.MainToggleButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+        MatToggleButton.Text = "STOP MAT FARM" MatToggleButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        if _G.StartFarmLoopFunc then _G.StartFarmLoopFunc() end
+    else
+        MatToggleButton.Text = "START MAT FARM" MatToggleButton.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+    end
+end)
 local workspace = game:GetService("Workspace")
 local players = game:GetService("Players")
 local runService = game:GetService("RunService")
 local replicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 local localPlayer = players.LocalPlayer
 
 local actionRemote = replicatedStorage:WaitForChild("Remotes"):WaitForChild("Action")
 local cancelQuestRemote = replicatedStorage:WaitForChild("Modules"):WaitForChild("NetworkFramework"):WaitForChild("NetworkEvent")
 
-_G.AutoFarm = true
 local skillDelay = 0.05
-local questCheckInterval = 4 
+local questCheckInterval = 3
 local lastQuestTime = 0
 local currentTargetRoot = nil
 local teleportConnection = nil
 local lastNpcTarget = ""
+local isProcessingQuest = false
 
-local questMap = {
-    {minLv = 0, maxLv = 999, npc = "NPC_Quest1", mob = "Bacon"},
-    {minLv = 1000, maxLv = 1999, npc = "NPC_Quest2", mob = "Bacon Strong"},
-    {minLv = 2000, maxLv = 2999, npc = "NPC_Quest3", mob = "Bacon Traveler"},
-    {minLv = 3000, maxLv = 3999, npc = "NPC_Quest4", mob = "Bacon Fawkes"},
-    {minLv = 4000, maxLv = 4999, npc = "NPC_Quest5", mob = "Bacon Pirate"},
-    {minLv = 5000, maxLv = 5999, npc = "NPC_Quest6", mob = "Bacon Clown"},
-    {minLv = 6000, maxLv = 6999, npc = "NPC_Quest7", mob = "Bacon Tarzan"},
-    {minLv = 7000, maxLv = 7999, npc = "NPC_Quest8", mob = "Gorilla"},
-    {minLv = 8000, maxLv = 8999, npc = "NPC_Quest9", mob = "Bacon Fisherman"},
-    {minLv = 9000, maxLv = 9999, npc = "NPC_Quest10", mob = "Bacon The Deep"},
-    {minLv = 10000, maxLv = 10999, npc = "NPC_Quest11", mob = "Bacon Marine"},
-    {minLv = 11000, maxLv = 11999, npc = "NPC_Quest12", mob = "Bacon Marine Captain"},
-    {minLv = 12000, maxLv = 12999, npc = "NPC_Quest13", mob = "Bacon Rock"},
-    {minLv = 13000, maxLv = 13999, npc = "NPC_Quest14", mob = "Bacon Iron"},
-    {minLv = 14000, maxLv = 14999, npc = "NPC_Quest15", mob = "Bacon Minerals"},
-    {minLv = 15000, maxLv = 15999, npc = "NPC_Quest16", mob = "Bacon Kryptonite"},
-    {minLv = 16000, maxLv = 16999, npc = "NPC_Quest17", mob = "Bacon Snow"},
-    {minLv = 17000, maxLv = 17999, npc = "NPC_Quest18", mob = "Bacon Ice"},
-    {minLv = 18000, maxLv = 18999, npc = "NPC_Quest19", mob = "Bacon Lava"},
-    {minLv = 19000, maxLv = math.huge, npc = "NPC_Quest20", mob = "Bacon Hellfire"}
+local matPositionMap = {
+    ["Bacon"] = Vector3.new(-67.018, 7.859, -224.919), ["Bacon Strong"] = Vector3.new(-67.018, 7.859, -224.919),
+    ["Gorilla"] = Vector3.new(-1172.509, 7.398, -1193.154), ["Bacon Tarzan"] = Vector3.new(-1172.509, 7.398, -1193.154),
+    ["Bacon Pirate"] = Vector3.new(-1228.169, 11.51, -61.182), ["Bacon Clown"] = Vector3.new(-1228.169, 11.51, -61.182),
+    ["Bacon Traveler"] = Vector3.new(-944.594, 5.031, 1123.314), ["Bacon Fawkes"] = Vector3.new(-944.594, 5.031, 1123.314),
+    ["Bacon Fisherman"] = Vector3.new(196.577, 12.496, 1029.665), ["Bacon The Deep"] = Vector3.new(196.577, 12.496, 1029.665),
+    ["Bacon Marine Captain"] = Vector3.new(-1055.156, 9.066, -2476.378), ["Bacon Iron"] = Vector3.new(1335.431, 8.986, -998.337),
+    ["Bacon Minerals"] = Vector3.new(1335.431, 8.986, -998.337), ["Bacon Snow"] = Vector3.new(62.811, 9.5, -2406.402),
+    ["Bacon Ice"] = Vector3.new(62.811, 9.5, -2406.402), ["Bacon Lava"] = Vector3.new(1109.942, 6.856, -2179.784),
+    ["Bacon Hellfire"] = Vector3.new(1109.942, 6.856, -2179.784)
 }
 
+local questMap = {
+    {minLv = 0, maxLv = 999, npc = "NPC_Quest1", mob = "Bacon"}, {minLv = 1000, maxLv = 1999, npc = "NPC_Quest2", mob = "Bacon Strong"},
+    {minLv = 2000, maxLv = 2999, npc = "NPC_Quest3", mob = "Bacon Traveler"}, {minLv = 3000, maxLv = 3999, npc = "NPC_Quest4", mob = "Bacon Fawkes"},
+    {minLv = 4000, maxLv = 4999, npc = "NPC_Quest5", mob = "Bacon Pirate"}, {minLv = 5000, maxLv = 5999, npc = "NPC_Quest6", mob = "Bacon Clown"},
+    {minLv = 6000, maxLv = 6999, npc = "NPC_Quest7", mob = "Bacon Tarzan"}, {minLv = 7000, maxLv = 7999, npc = "NPC_Quest8", mob = "Gorilla"},
+    {minLv = 8000, maxLv = 8999, npc = "NPC_Quest9", mob = "Bacon Fisherman"}, {minLv = 9000, maxLv = 9999, npc = "NPC_Quest10", mob = "Bacon The Deep"},
+    {minLv = 10000, maxLv = 10999, npc = "NPC_Quest11", mob = "Bacon Marine"}, {minLv = 11000, maxLv = 11999, npc = "NPC_Quest12", mob = "Bacon Marine Captain"},
+    {minLv = 12000, maxLv = 12999, npc = "NPC_Quest13", mob = "Bacon Rock"}, {minLv = 13000, maxLv = 13999, npc = "NPC_Quest14", mob = "Bacon Iron"},
+    {minLv = 14000, maxLv = 14999, npc = "NPC_Quest15", mob = "Bacon Minerals"}, {minLv = 15000, maxLv = 15999, npc = "NPC_Quest16", mob = "Bacon Kryptonite"},
+    {minLv = 16000, maxLv = 16999, npc = "NPC_Quest17", mob = "Bacon Snow"}, {minLv = 17000, maxLv = 17999, npc = "NPC_Quest18", mob = "Bacon Ice"},
+    {minLv = 18000, maxLv = 18999, npc = "NPC_Quest19", mob = "Bacon Lava"}, {minLv = 19000, maxLv = math.huge, npc = "NPC_Quest20", mob = "Bacon Hellfire"}
+}
+
+local function activateBuso() pcall(function() actionRemote:FireServer("Misc", "buso") end) end
 local function getPlayerLevel()
-    local currentLevel = 1
+    local lv = 1
     pcall(function()
-        local playerGui = localPlayer:FindFirstChild("PlayerGui")
-        if playerGui then
-            for _, gui in pairs(playerGui:GetChildren()) do
-                if gui:IsA("ScreenGui") and gui.Enabled then
-                    local frameDisplay = gui:FindFirstChild("Frame_Display", true)
-                    if frameDisplay then
-                        local levelTextObj = frameDisplay:FindFirstChild("LevelText", true)
-                        if levelTextObj and levelTextObj:IsA("TextLabel") and levelTextObj.Text ~= "" then
-                            local cleanNumber = string.gsub(levelTextObj.Text, "%D", "")
-                            if cleanNumber and cleanNumber ~= "" then
-                                currentLevel = tonumber(cleanNumber)
-                            end
-                        end
-                    end
-                end
-            end
-        end
+        local data = localPlayer:FindFirstChild("Data") or replicatedStorage:FindFirstChild("PlayerData") and replicatedStorage.PlayerData:FindFirstChild(localPlayer.Name)
+        if data and data:FindFirstChild("Level") then lv = data.Level.Value
+        else local ls = localPlayer:FindFirstChild("leaderstats") if ls and ls:FindFirstChild("Level") then lv = ls.Level.Value end end
     end)
-    return currentLevel
+    return lv
 end
 
 local function getCurrentQuestConfig()
     local level = getPlayerLevel()
-    for _, config in ipairs(questMap) do
-        if level >= config.minLv and level <= config.maxLv then
-            return config
-        end
-    end
+    for _, config in ipairs(questMap) do if level >= config.minLv and level <= config.maxLv then return config end end
     return questMap[1]
 end
 
 local function abandonCurrentQuest()
+    pcall(function() cancelQuestRemote:FireServer("fire", [3] = "Quest", [4] = "Cancel") end)
     pcall(function()
-        local args = {
-            "fire",
-            [3] = "Quest",
-            [4] = "Cancel"
-        }
-        cancelQuestRemote:FireServer(unpack(args))
+        local frameQuest = localPlayer:FindFirstChild("PlayerGui") and localPlayer.PlayerGui:FindFirstChild("Frame_Quest", true)
+        if frameQuest and frameQuest:FindFirstChild("Close_") then firesignal(frameQuest.Close_.MouseButton1Click) end
     end)
 end
 
-local function getTargetNPC()
-    local config = getCurrentQuestConfig()
-    local npcFolder = workspace:FindFirstChild("NpcQuest")
-    if npcFolder and config then
-        return npcFolder:FindFirstChild(config.npc)
-    end
-    return nil
-end
-
-local function getToolAtSlot(slotIndex)
-    local backpack = localPlayer:FindFirstChild("Backpack")
-    local character = localPlayer.Character
-    
-    if character then
-        local equippedTool = character:FindFirstChildOfClass("Tool")
-        if equippedTool then
-            return equippedTool
-        end
-    end
-    
-    if backpack then
-        local toolItems = {}
-        for _, item in ipairs(backpack:GetChildren()) do
-            if item:IsA("Tool") then
-                table.insert(toolItems, item)
-            end
-        end
-        return toolItems[slotIndex]
-    end
+local function getTargetNPC() local config = getCurrentQuestConfig() return workspace:FindFirstChild("NpcQuest") and workspace.NpcQuest:FindFirstChild(config.npc) or nil end
+local function getToolAtSlot(slot)
+    if localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Tool") then return localPlayer.Character:FindFirstChildOfClass("Tool") end
+    local bp = localPlayer:FindFirstChild("Backpack")
+    if bp then local tools = {} for _, item in ipairs(bp:GetChildren()) do if item:IsA("Tool") then table.insert(tools, item) end end return tools[slot] end
     return nil
 end
 
 local function equipSelectedSlot()
     pcall(function()
-        local character = localPlayer.Character
-        if character then
-            local alreadyEquipped = character:FindFirstChildOfClass("Tool")
-            if not alreadyEquipped then
-                local targetTool = getToolAtSlot(_G.SelectedSlot)
-                if targetTool and targetTool.Parent ~= character then
-                    character:FindFirstChildOfClass("Humanoid"):EquipTool(targetTool)
-                end
-            end
+        if localPlayer.Character and not localPlayer.Character:FindFirstChildOfClass("Tool") then
+            local tool = getToolAtSlot(_G.SelectedSlot)
+            if tool then localPlayer.Character:FindFirstChildOfClass("Humanoid"):EquipTool(tool) end
         end
     end)
 end
 
-local function interactWithNPC(npc, isNewNpc)
-    if not npc then return end
+local function interactWithNPC(npc, isNew)
+    if not npc or not localPlayer.Character then return end
     local root = npc:FindFirstChild("HumanoidRootPart") or npc:FindFirstChildOfClass("Part")
-    if root and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        local myRoot = localPlayer.Character.HumanoidRootPart
-        
-        myRoot.CFrame = root.CFrame * CFrame.new(0, 0, -3)
-        task.wait(0.15)
-        
-        if isNewNpc then
-            abandonCurrentQuest()
-            task.wait(0.2)
-        end
-        
+    local myRoot = localPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if root and myRoot then
+        isProcessingQuest = true currentTargetRoot = nil
+        myRoot.CFrame = root.CFrame * CFrame.new(0, 0, -3) task.wait(0.4)
+        if isNew then abandonCurrentQuest() task.wait(2.0) end
         local prompt = npc:FindFirstChildWhichIsA("ProximityPrompt", true)
-        if prompt then
-            fireproximityprompt(prompt)
-        else
-            local clickDetector = npc:FindFirstChildWhichIsA("ClickDetector", true)
-            if clickDetector then
-                fireclickdetector(clickDetector)
-            end
-        end
-        task.wait(0.15)
+        if prompt then fireproximityprompt(prompt) else local cd = npc:FindFirstChildWhichIsA("ClickDetector", true) if cd then fireclickdetector(cd) end end
+        task.wait(0.4) isProcessingQuest = false
     end
 end
 
-local function useSkillRemote(skillKey)
-    pcall(function()
-        local targetTool = getToolAtSlot(_G.SelectedSlot)
-        local toolName = targetTool and targetTool.Name or "Combat"
-        
-        local args = {
-            toolName,
-            skillKey
-        }
-        actionRemote:FireServer(unpack(args))
-    end)
+local function teleportOnceToIsland(targetPos)
+    if _G.HasTeleportedToIsland then return end
+    if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        currentTargetRoot = nil
+        localPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(targetPos + Vector3.new(0, 15, 0))
+        _G.HasTeleportedToIsland = true task.wait(2.5)
+    end
 end
 
 local function getLockedMobTarget()
-    local config = getCurrentQuestConfig()
-    if not config then return nil end
-    
-    local mobFolder = workspace:FindFirstChild("Mob")
-    if mobFolder then
+    local mobFolder = workspace:FindFirstChild("Mob") if not mobFolder then return nil end
+    if _G.AutoKillBoss then
         for _, mob in pairs(mobFolder:GetChildren()) do
-            if mob.Name == config.mob then
+            if string.lower(mob.Name) == string.lower(_G.TargetBossToSummon) then
                 local root = mob:FindFirstChild("HumanoidRootPart")
                 local humanoid = mob:FindFirstChildOfClass("Humanoid")
-                
-                if root and (not humanoid or humanoid.Health > 0) then
-                    return root
+                if root and (not humanoid or humanoid.Health > 0) then return root end
+            end
+        end
+    end
+    if _G.AutoMaterial and _G.SelectedMatMobs then
+        for mobName, isSelected in pairs(_G.SelectedMatMobs) do
+            if isSelected then
+                local pos = matPositionMap[mobName] if pos then teleportOnceToIsland(pos) end
+                for _, mob in pairs(mobFolder:GetChildren()) do
+                    local isMatch = (mob.Name == mobName)
+                    if mobName == "Bacon Minerals" then isMatch = (mob.Name == "Bacon Minerals" or mob.Name == "Bacon Kryptonite" or mob.Name == "Bacon Iron")
+                    elseif mobName == "Bacon Lava" then isMatch = (mob.Name == "Bacon Lava" or mob.Name == "Bacon Hellfire") end
+                    if isMatch then
+                        local root = mob:FindFirstChild("HumanoidRootPart")
+                        local humanoid = mob:FindFirstChildOfClass("Humanoid")
+                        if root and (not humanoid or humanoid.Health > 0) then return root end
+                    end
+                end
+            end
+        end
+    end
+    if _G.AutoFarm then
+        local config = getCurrentQuestConfig()
+        if config then
+            for _, mob in pairs(mobFolder:GetChildren()) do
+                if mob.Name == config.mob then
+                    local root = mob:FindFirstChild("HumanoidRootPart")
+                    local humanoid = mob:FindFirstChildOfClass("Humanoid")
+                    if root and (not humanoid or humanoid.Health > 0) then return root end
                 end
             end
         end
@@ -409,90 +603,111 @@ end
 
 if teleportConnection then teleportConnection:Disconnect() end
 teleportConnection = runService.Heartbeat:Connect(function()
-    if _G.AutoFarm and currentTargetRoot and currentTargetRoot.Parent and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        local char = localPlayer.Character
-        local root = char.HumanoidRootPart
-        
-        root.CFrame = (currentTargetRoot.CFrame * CFrame.new(0, 7, 0)) * CFrame.Angles(math.rad(-90), 0, 0)
-        
+    if (_G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss) and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local root = localPlayer.Character.HumanoidRootPart
+        for _, part in pairs(localPlayer.Character:GetChildren()) do if part:IsA("BasePart") then part.CanCollide = false end end
+        if currentTargetRoot and currentTargetRoot.Parent then
+            root.CFrame = (currentTargetRoot.CFrame * CFrame.new(0, 7, 0)) * CFrame.Angles(math.rad(-90), 0, 0)
+        else root.Velocity = Vector3.new(0, 0, 0) root.RotVelocity = Vector3.new(0, 0, 0) end
         if not root:FindFirstChild("VelocityHandler") then
-            local bv = Instance.new("BodyVelocity")
-            bv.Name = "VelocityHandler"
-            bv.Velocity = Vector3.new(0, 0, 0)
-            bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-            bv.Parent = root
+            local bv = Instance.new("BodyVelocity") bv.Name = "VelocityHandler" bv.Velocity = Vector3.new(0, 0, 0)
+            bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge) bv.Parent = root
         end
     else
         if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            local bv = localPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler")
-            if bv then bv:Destroy() end
+            local bv = localPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") if bv then bv:Destroy() end
         end
     end
 end)
 
-local function startFarm()
+_G.StartFarmLoopFunc = function()
     task.spawn(function()
-        local firstConfig = getCurrentQuestConfig()
-        if firstConfig then lastNpcTarget = firstConfig.npc end
-        
-        while _G.AutoFarm do
-            equipSelectedSlot()
-            
-            local config = getCurrentQuestConfig()
-            local currentNPC = getTargetNPC()
-            
-            if currentNPC and (tick() - lastQuestTime > questCheckInterval) then
-                currentTargetRoot = nil 
-                
-                local isNewNpc = false
-                if config and config.npc ~= lastNpcTarget then
-                    isNewNpc = true
-                    lastNpcTarget = config.npc
-                end
-                
-                interactWithNPC(currentNPC, isNewNpc)
-                lastQuestTime = tick()
-            end
-            
-            local targetMobRoot = getLockedMobTarget()
-            if targetMobRoot then
-                currentTargetRoot = targetMobRoot
-                
-                local orderedSkills = {"Z", "X", "C", "V"}
-                for _, skill in ipairs(orderedSkills) do
-                    if not _G.AutoFarm or currentTargetRoot ~= targetMobRoot then 
-                        break 
-                    end
-                    
-                    if _G.SelectedSkills[skill] then
-                        useSkillRemote(string.lower(skill))
-                        task.wait(skillDelay)
+        local firstConfig = getCurrentQuestConfig() if firstConfig then lastNpcTarget = firstConfig.npc end
+        activateBuso()
+        while _G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss do
+            if not isProcessingQuest then
+                equipSelectedSlot()
+                if _G.AutoFarm and not _G.AutoMaterial and not _G.AutoKillBoss then
+                    local config = getCurrentQuestConfig() local npc = getTargetNPC()
+                    if npc and (tick() - lastQuestTime > questCheckInterval) then
+                        local isNew = (config and config.npc ~= lastNpcTarget)
+                        if config then lastNpcTarget = config.npc end
+                        interactWithNPC(npc, isNew) lastQuestTime = tick()
                     end
                 end
-            else
-                currentTargetRoot = nil
-                task.wait(0.05)
+                local targetMobRoot = getLockedMobTarget()
+                if targetMobRoot and not isProcessingQuest then
+                    currentTargetRoot = targetMobRoot
+                    local orderedSkills = {"Z", "X", "C", "V"}
+                    for _, skill in ipairs(orderedSkills) do
+                        if (not _G.AutoFarm and not _G.AutoMaterial and not _G.AutoKillBoss) or currentTargetRoot ~= targetMobRoot or isProcessingQuest then break end
+                        if _G.SelectedSkills and _G.SelectedSkills[skill] then
+                            local tool = getToolAtSlot(_G.SelectedSlot)
+                            actionRemote:FireServer(tool and tool.Name or "Combat", string.lower(skill)) task.wait(skillDelay)
+                        end
+                    end
+                else currentTargetRoot = nil task.wait(0.1) end
             end
             task.wait(0.01)
         end
     end)
 end
 
-ToggleButton.MouseButton1Click:Connect(function()
-    _G.AutoFarm = not _G.AutoFarm
-    if _G.AutoFarm then
-        ToggleButton.Text = "STOP AUTOFARM"
-        ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-        startFarm()
-    else
-        ToggleButton.Text = "START AUTOFARM"
-        ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
-        currentTargetRoot = nil
-        if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            local bv = localPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler")
-            if bv then bv:Destroy() end
+task.spawn(function()
+    while true do
+        if _G.AutoSummonBoss and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            pcall(function()
+                local myRoot = localPlayer.Character.HumanoidRootPart
+                local playerGui = localPlayer:FindFirstChild("PlayerGui")
+                local mainHUD = playerGui and playerGui:FindFirstChild("HUD")
+                local mainFrame = mainHUD and mainHUD:FindFirstChild("Main")
+                local summonFrame = mainFrame and mainFrame:FindFirstChild("Frame_SummonBoss")
+                local scrollingFrame = summonFrame and summonFrame:FindFirstChild("ScrollingFrame")
+                
+                if summonFrame and summonFrame.Visible and scrollingFrame then
+                    for _, bossFolder in pairs(scrollingFrame:GetChildren()) do
+                        if string.lower(bossFolder.Name) == string.lower(_G.TargetBossToSummon) then
+                            local subMain = bossFolder:FindFirstChild("Main")
+                            local btn = subMain and subMain:FindFirstChild("TextButton")
+                            if btn and btn:IsA("TextButton") then
+                                firesignal(btn.MouseButton1Click) firesignal(btn.MouseButton1Down) firesignal(btn.Activated)
+                                if btn.AbsolutePosition and btn.AbsoluteSize then
+                                    local exactX = btn.AbsolutePosition.X + (btn.AbsoluteSize.X / 2)
+                                    local exactY = btn.AbsolutePosition.Y + (btn.AbsoluteSize.Y / 2) + 40
+                                    VirtualInputManager:SendMouseButtonEvent(exactX, exactY, 0, true, game, 1) task.wait(0.08)
+                                    VirtualInputManager:SendMouseButtonEvent(exactX, exactY, 0, false, game, 1)
+                                end
+                                task.wait(0.2)
+                                local closeBtn = summonFrame:FindFirstChild("Close_")
+                                if closeBtn then firesignal(closeBtn.MouseButton1Click) end
+                                task.wait(0.8)
+                            end
+                        end
+                    end
+                else
+                    local npcBossFolder = workspace:FindFirstChild("NpcBoss")
+                    local npc = npcBossFolder and npcBossFolder:FindFirstChild("NPC_SummonBoss")
+                    if npc and npc:FindFirstChild("HumanoidRootPart") then
+                        _G.HasTeleportedToIsland = false currentTargetRoot = nil
+                        myRoot.CFrame = npc.HumanoidRootPart.CFrame * CFrame.new(0, 0, -2.5)
+                        task.wait(0.2)
+                        for _, prompt in pairs(npc:GetDescendants()) do
+                            if prompt:IsA("ProximityPrompt") then fireproximityprompt(prompt) task.wait(0.5) break end
+                        end
+                    end
+                end
+            end)
         end
+        task.wait(0.5)
     end
 end)
 
-startFarm()
+task.spawn(function()
+    while true do
+        if _G.AutoFarm and not _G.AutoMaterial and not _G.AutoKillBoss then
+            local config = getCurrentQuestConfig()
+            if config and config.npc ~= lastNpcTarget and not isProcessingQuest then abandonCurrentQuest() end
+        end
+        task.wait(0.5)
+    end
+end)
