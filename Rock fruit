@@ -65,7 +65,6 @@ local MainFrame = Instance.new("Frame")
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
 MainFrame.Position = UDim2.new(0.5, -200, 0.4, -100)
--- ปรับขนาดให้กว้างขึ้นเป็น 400 และเตี้ยลงเหลือแค่ 240 (แก้ปัญหาจอทะลุขอบล่าง)
 MainFrame.Size = UDim2.new(0, 400, 0, 240)
 MainFrame.Active = true
 MainFrame.Draggable = true
@@ -104,7 +103,6 @@ ContentFrame.Parent = MainFrame
 ContentFrame.BackgroundTransparency = 1
 ContentFrame.Position = UDim2.new(0, 0, 0, 35)
 ContentFrame.Size = UDim2.new(1, 0, 1, -35)
-
 ----------------------------------------------------------------
 -- [แบ่งกลุ่มฝั่งซ้าย (LEFT COLUMN) - ระบบฟาร์มหลักและสกิล]
 ----------------------------------------------------------------
@@ -227,7 +225,6 @@ for slotNum = 1, 5 do
         end
     end)
 end
-
 ----------------------------------------------------------------
 -- [แบ่งกลุ่มฝั่งขวา (RIGHT COLUMN) - ระบบบอสและวัตถุดิบ]
 ----------------------------------------------------------------
@@ -237,7 +234,7 @@ _G.AutoKillBoss = false
 local ActionBossButton = Instance.new("TextButton")
 ActionBossButton.Parent = ContentFrame
 ActionBossButton.BackgroundColor3 = Color3.fromRGB(110, 35, 130)
-ActionBossButton.Position = UDim2.new(0, 208, 0, 5) -- ย้ายมาฝั่งขวาพิกัด X=208
+ActionBossButton.Position = UDim2.new(0, 208, 0, 5)
 ActionBossButton.Size = UDim2.new(0, 180, 0, 35)
 ActionBossButton.Font = Enum.Font.SourceSansBold
 ActionBossButton.Text = "⚡ SUMMON & KILL BOSS"
@@ -285,12 +282,26 @@ OpenMatMenuButton.TextSize = 12
 local OpenMatCorner = Instance.new("UICorner")
 OpenMatCorner.CornerRadius = UDim.new(0, 6)
 OpenMatCorner.Parent = OpenMatMenuButton
+
+local ToggleStatsWindowButton = Instance.new("TextButton")
+ToggleStatsWindowButton.Parent = ContentFrame
+ToggleStatsWindowButton.BackgroundColor3 = Color3.fromRGB(45, 90, 140)
+ToggleStatsWindowButton.Position = UDim2.new(0, 208, 0, 148)
+ToggleStatsWindowButton.Size = UDim2.new(0, 180, 0, 32)
+ToggleStatsWindowButton.Font = Enum.Font.SourceSansBold
+ToggleStatsWindowButton.Text = "OPEN STATS MENU ⚙️"
+ToggleStatsWindowButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleStatsWindowButton.TextSize = 12
+
+local ToggleStatsCorner = Instance.new("UICorner")
+ToggleStatsCorner.CornerRadius = UDim.new(0, 6)
+ToggleStatsCorner.Parent = ToggleStatsWindowButton
+
 local MaterialFrame = Instance.new("Frame")
 MaterialFrame.Parent = MainFrame
 MaterialFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
--- ขยับหน้าต่างเลือกไอเทมฟาร์มวัตถุดิบไปด้านข้าง โดยอิงตามความกว้างใหม่ของหน้าต่างหลัก
 MaterialFrame.Position = UDim2.new(1, 5, 0, 0)
-MaterialFrame.Size = UDim2.new(0, 260, 0, 240) -- ปรับให้ความสูง 240 เท่าตัวหลักพอดี
+MaterialFrame.Size = UDim2.new(0, 260, 0, 240)
 MaterialFrame.Visible = false
 
 local MatCorner = Instance.new("UICorner")
@@ -342,7 +353,7 @@ local MatScroll = Instance.new("ScrollingFrame")
 MatScroll.Parent = MaterialFrame
 MatScroll.BackgroundTransparency = 1
 MatScroll.Position = UDim2.new(0, 10, 0, 90)
-MatScroll.Size = UDim2.new(0, 240, 0, 140) -- ย่อกล่องสกรอลล์ลงเพื่อให้พอดีกับกรอบเตี้ย
+MatScroll.Size = UDim2.new(0, 240, 0, 140)
 MatScroll.CanvasSize = UDim2.new(0, 0, 0, 600)
 MatScroll.ScrollBarThickness = 4
 
@@ -415,19 +426,6 @@ OpenMatMenuButton.MouseButton1Click:Connect(function()
     OpenMatMenuButton.BackgroundColor3 = matMenuOpen and Color3.fromRGB(30, 120, 180) or Color3.fromRGB(70, 70, 80)
 end)
 
-local isMinimized = false
-MinButton.MouseButton1Click:Connect(function()
-    isMinimized = not isMinimized
-    ContentFrame.Visible = not isMinimized
-    if isMinimized then
-        MaterialFrame.Visible = false
-    else
-        MaterialFrame.Visible = matMenuOpen
-    end
-    MainFrame.Size = isMinimized and UDim2.new(0, 400, 0, 35) or UDim2.new(0, 400, 0, 240)
-    MinButton.Text = isMinimized and "+" or "-"
-end)
-
 SwitchBossButton.MouseButton1Click:Connect(function()
     if _G.TargetBossName == "GooGooGaaGaa" then 
         _G.TargetBossName = "Dark Bacon" 
@@ -477,6 +475,210 @@ end
 MatToggleButton.MouseButton1Click:Connect(function()
     if _G.OnMatFarmToggled then _G.OnMatFarmToggled() end
 end)
+----------------------------------------------------------------
+-- [[ ระบบและหน้าต่าง UI สำหรับ AUTO STATS - ผูกติดกับเมนูหลัก ]]
+----------------------------------------------------------------
+local StatsMainFrame = Instance.new("Frame")
+StatsMainFrame.Parent = MainFrame 
+StatsMainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+StatsMainFrame.Position = UDim2.new(0, -215, 0, 0)
+StatsMainFrame.Size = UDim2.new(0, 210, 0, 240)
+StatsMainFrame.Active = true
+StatsMainFrame.Visible = false
+
+local StatsMainCorner = Instance.new("UICorner")
+StatsMainCorner.CornerRadius = UDim.new(0, 10)
+StatsMainCorner.Parent = StatsMainFrame
+
+local StatsMainStroke = Instance.new("UIStroke")
+StatsMainStroke.Color = Color3.fromRGB(70, 70, 80)
+StatsMainStroke.Thickness = 1.5
+StatsMainStroke.Parent = StatsMainFrame
+
+local StatsTitle = Instance.new("TextLabel")
+StatsTitle.Parent = StatsMainFrame
+StatsTitle.BackgroundTransparency = 1
+StatsTitle.Position = UDim2.new(0, 10, 0, 5)
+StatsTitle.Size = UDim2.new(1, -20, 0, 25)
+StatsTitle.Font = Enum.Font.SourceSansBold
+StatsTitle.Text = "AUTO STATS SYSTEM"
+StatsTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+StatsTitle.TextSize = 13
+StatsTitle.TextXAlignment = Enum.TextXAlignment.Center
+
+local StatsContentFrame = Instance.new("Frame")
+StatsContentFrame.Parent = StatsMainFrame
+StatsContentFrame.BackgroundTransparency = 1
+StatsContentFrame.Position = UDim2.new(0, 0, 0, 30)
+StatsContentFrame.Size = UDim2.new(1, 0, 1, -30)
+
+_G.AutoStatsSettings = {
+    Melee   = false,
+    Defense = false,
+    Sword   = false,
+    Power   = false
+}
+_G.AutoStatsEnabled = false
+_G.UpgradeAmount = "1000"
+
+local statDisplayList = {
+    {Internal = "Melee", Display = "🥊 MELEE"},
+    {Internal = "Defense", Display = "🛡️ DEFENSE"},
+    {Internal = "Sword", Display = "⚔️ SWORD"},
+    {Internal = "Power", Display = "🔮 FRUIT & SPECIAL"}
+}
+
+for i, stat in ipairs(statDisplayList) do
+    local btn = Instance.new("TextButton")
+    btn.Parent = StatsContentFrame
+    btn.Size = UDim2.new(1, -20, 0, 28)
+    btn.Position = UDim2.new(0, 10, 0, (i - 1) * 32 + 5)
+    btn.Font = Enum.Font.SourceSansBold
+    btn.Text = stat.Display .. " : OFF"
+    btn.TextSize = 11
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.BackgroundColor3 = Color3.fromRGB(55, 55, 60)
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 5)
+    btnCorner.Parent = btn
+    
+    btn.MouseButton1Click:Connect(function()
+        _G.AutoStatsSettings[stat.Internal] = not _G.AutoStatsSettings[stat.Internal]
+        if _G.AutoStatsSettings[stat.Internal] then
+            btn.Text = stat.Display .. " : ON"
+            btn.BackgroundColor3 = Color3.fromRGB(45, 110, 45)
+        else
+            btn.Text = stat.Display .. " : OFF"
+            btn.BackgroundColor3 = Color3.fromRGB(55, 55, 60)
+        end
+    end)
+end
+
+local AmountLabel = Instance.new("TextLabel")
+AmountLabel.Parent = StatsContentFrame
+AmountLabel.BackgroundTransparency = 1
+AmountLabel.Position = UDim2.new(0, 10, 0, 135)
+AmountLabel.Size = UDim2.new(0, 100, 0, 25)
+AmountLabel.Font = Enum.Font.SourceSansBold
+AmountLabel.Text = "Upgrade Amount:"
+AmountLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+AmountLabel.TextSize = 11
+AmountLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local AmountTextBox = Instance.new("TextBox")
+AmountTextBox.Parent = StatsContentFrame
+AmountTextBox.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+AmountTextBox.Position = UDim2.new(0, 110, 0, 135)
+AmountTextBox.Size = UDim2.new(0, 90, 0, 25)
+AmountTextBox.Font = Enum.Font.SourceSansBold
+AmountTextBox.Text = _G.UpgradeAmount
+AmountTextBox.TextColor3 = Color3.fromRGB(255, 255, 50)
+AmountTextBox.TextSize = 12
+
+local AmountCorner = Instance.new("UICorner")
+AmountCorner.CornerRadius = UDim.new(0, 4)
+AmountCorner.Parent = AmountTextBox
+
+local AmountStroke = Instance.new("UIStroke")
+AmountStroke.Color = Color3.fromRGB(60, 60, 65)
+AmountStroke.Thickness = 1
+AmountStroke.Parent = AmountTextBox
+
+AmountTextBox:GetPropertyChangedSignal("Text"):Connect(function()
+    _G.UpgradeAmount = AmountTextBox.Text
+end)
+
+local StatsActionButton = Instance.new("TextButton")
+StatsActionButton.Parent = StatsContentFrame
+StatsActionButton.Size = UDim2.new(1, -20, 0, 32)
+StatsActionButton.Position = UDim2.new(0, 10, 1, -42)
+StatsActionButton.Font = Enum.Font.SourceSansBold
+StatsActionButton.Text = "START AUTO STATS"
+StatsActionButton.TextSize = 12
+StatsActionButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+StatsActionButton.BackgroundColor3 = Color3.fromRGB(200, 100, 30)
+
+local StatsActionCorner = Instance.new("UICorner")
+StatsActionCorner.CornerRadius = UDim.new(0, 6)
+StatsActionCorner.Parent = StatsActionButton
+
+local statsMenuOpen = false
+ToggleStatsWindowButton.MouseButton1Click:Connect(function()
+    statsMenuOpen = not statsMenuOpen
+    StatsMainFrame.Visible = statsMenuOpen
+    ToggleStatsWindowButton.Text = statsMenuOpen and "CLOSE STATS MENU ⚙️" or "OPEN STATS MENU ⚙️"
+    ToggleStatsWindowButton.BackgroundColor3 = statsMenuOpen and Color3.fromRGB(30, 120, 180) or Color3.fromRGB(45, 90, 140)
+end)
+
+local isMinimized = false
+MinButton.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    ContentFrame.Visible = not isMinimized
+    if isMinimized then
+        MaterialFrame.Visible = false
+        StatsMainFrame.Visible = false
+    else
+        MaterialFrame.Visible = matMenuOpen
+        StatsMainFrame.Visible = statsMenuOpen
+    end
+    MainFrame.Size = isMinimized and UDim2.new(0, 400, 0, 35) or UDim2.new(0, 400, 0, 240)
+    MinButton.Text = isMinimized and "+" or "-"
+end)
+
+local function runAutoStatsLoop()
+    while _G.AutoStatsEnabled do
+        pcall(function()
+            local pGui = localPlayer:FindFirstChild("PlayerGui")
+            if pGui then
+                local mainHUD = pGui:FindFirstChild("HUD") or pGui:FindFirstChildWhichIsA("ScreenGui")
+                local statsFrame = mainHUD and mainHUD:FindFirstChild("Frame_Stats", true)
+                local statsContainer = statsFrame and statsFrame:FindFirstChild("Stats", true)
+                
+                if statsContainer then
+                    local gameBox = statsContainer:FindFirstChild("Box")
+                    local gameTextBox = gameBox and gameBox:FindFirstChildWhichIsA("TextBox", true)
+                    
+                    if gameTextBox then
+                        gameTextBox.Text = tostring(_G.UpgradeAmount)
+                        pcall(function() gameTextBox:ReleaseFocus(true) end)
+                    end
+                    
+                    local containerFrame = statsContainer:FindFirstChild("Frame")
+                    if containerFrame then
+                        for statName, shouldUpgrade in pairs(_G.AutoStatsSettings) do
+                            if shouldUpgrade and _G.AutoStatsEnabled then
+                                local statCategory = containerFrame:FindFirstChild(statName)
+                                local plusButton = statCategory and statCategory:FindFirstChild("Plus")
+                                
+                                if plusButton and plusButton.Visible then
+                                    firesignal(plusButton.MouseButton1Click)
+                                    task.wait(0.2)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+        task.wait(0.3)
+    end
+end
+
+StatsActionButton.MouseButton1Click:Connect(function()
+    _G.AutoStatsEnabled = not _G.AutoStatsEnabled
+    if _G.AutoStatsEnabled then
+        StatsActionButton.Text = "STOP AUTO STATS"
+        StatsActionButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        task.spawn(runAutoStatsLoop)
+    else
+        StatsActionButton.Text = "START AUTO STATS"
+        StatsActionButton.BackgroundColor3 = Color3.fromRGB(200, 100, 30)
+    end
+end)
+----------------------------------------------------------------
+-- [ระบบเบื้องหลังของตัวเกมแบบดั้งเดิม (ไม่เปลี่ยนแปลงใดๆ)]
+----------------------------------------------------------------
 local actionRemote = replicatedStorage:WaitForChild("Remotes"):WaitForChild("Action")
 local cancelQuestRemote = replicatedStorage:WaitForChild("Modules"):WaitForChild("NetworkFramework"):WaitForChild("NetworkEvent")
 
@@ -703,7 +905,6 @@ local function clickSummonAndClose(bossName)
     end)
     return success
 end
-
 task.spawn(function()
     while true do
         if _G.AutoKillBoss and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -909,3 +1110,139 @@ localPlayer.CharacterAdded:Connect(function()
     task.wait(2.0)
     if _G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss then activateBuso() end
 end)
+
+----------------------------------------------------------------
+-- [ส่วนระบบ AUTO REBIRTH ทำงานแบบแยกส่วนอิสระ (โดนคลุมอยู่ใน do...end)]
+----------------------------------------------------------------
+do
+    -- ล้าง UI เก่าออกไปก่อนป้องกันหน้าต่างซ้อนกัน
+    if CoreGui:FindFirstChild("AutoRebirthSystemUI") then
+        CoreGui.AutoRebirthSystemUI:Destroy()
+    end
+
+    ----------------------------------------------------------------
+    -- [สร้างหน้าต่าง UI ควบคุม - แบบเรียบง่าย]
+    ----------------------------------------------------------------
+    local RebirthGui = Instance.new("ScreenGui")
+    RebirthGui.Parent = CoreGui
+    RebirthGui.Name = "AutoRebirthSystemUI"
+
+    local RebirthFrame = Instance.new("Frame")
+    RebirthFrame.Parent = RebirthGui
+    RebirthFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    RebirthFrame.Position = UDim2.new(0.5, -90, 0.15, 0)
+    RebirthFrame.Size = UDim2.new(0, 180, 0, 95)
+    RebirthFrame.Active = true
+    RebirthFrame.Draggable = true 
+
+    local FrameCorner = Instance.new("UICorner")
+    FrameCorner.CornerRadius = UDim.new(0, 8)
+    FrameCorner.Parent = RebirthFrame
+
+    local FrameStroke = Instance.new("UIStroke")
+    FrameStroke.Color = Color3.fromRGB(75, 75, 85)
+    FrameStroke.Thickness = 1.5
+    FrameStroke.Parent = RebirthFrame
+
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Parent = RebirthFrame
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.Position = UDim2.new(0, 0, 0, 8)
+    TitleLabel.Size = UDim2.new(1, 0, 0, 20)
+    TitleLabel.Font = Enum.Font.SourceSansBold
+    TitleLabel.Text = "✨ AUTO REBIRTH"
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleLabel.TextSize = 14
+
+    local ConditionLabel = Instance.new("TextLabel")
+    ConditionLabel.Parent = RebirthFrame
+    ConditionLabel.BackgroundTransparency = 1
+    ConditionLabel.Position = UDim2.new(0, 0, 0, 26)
+    ConditionLabel.Size = UDim2.new(1, 0, 0, 15)
+    ConditionLabel.Font = Enum.Font.SourceSansItalic
+    ConditionLabel.Text = "(Required: Lv. 20000 / Max)"
+    ConditionLabel.TextColor3 = Color3.fromRGB(170, 170, 180)
+    ConditionLabel.TextSize = 11
+
+    local ActionButton = Instance.new("TextButton")
+    ActionButton.Parent = RebirthFrame
+    ActionButton.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
+    ActionButton.Position = UDim2.new(0, 12, 0, 48)
+    ActionButton.Size = UDim2.new(1, -24, 0, 32)
+    ActionButton.Font = Enum.Font.SourceSansBold
+    ActionButton.Text = "AUTO: OFF"
+    ActionButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ActionButton.TextSize = 13
+
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.CornerRadius = UDim.new(0, 6)
+    ButtonCorner.Parent = ActionButton
+
+    ----------------------------------------------------------------
+    -- [ระบบการทำงานหลัก]
+    ----------------------------------------------------------------
+    _G.AutoRebirthEnabled = false
+
+    local function isMaxLevel()
+        local ready = false
+        pcall(function()
+            local playerGui = localPlayer:FindFirstChild("PlayerGui")
+            if playerGui then
+                for _, v in pairs(playerGui:GetDescendants()) do
+                    if v:IsA("TextLabel") and (string.find(v.Text, "20000") or string.find(string.lower(v.Text), "max")) then
+                        ready = true
+                        break
+                    end
+                end
+            end
+        end)
+        return ready
+    end
+
+    local function clickRebirthButton()
+        pcall(function()
+            local playerGui = localPlayer:FindFirstChild("PlayerGui")
+            if playerGui then
+                local frameStats = playerGui:FindFirstChild("Frame_Stats", true)
+                if frameStats then
+                    local rebirthFrame = frameStats:FindFirstChild("Rebirth")
+                    if rebirthFrame and rebirthFrame:IsA("Frame") then
+                        local realButton = rebirthFrame:FindFirstChild("Rebirth")
+                        if realButton and realButton:IsA("TextButton") then
+                            if firesignal then
+                                firesignal(realButton.MouseButton1Click)
+                            else
+                                realButton:Activate()
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+    end
+
+    local function startRebirthLoop()
+        while _G.AutoRebirthEnabled do
+            if isMaxLevel() then
+                clickRebirthButton()
+            end
+            task.wait(0.5)
+        end
+    end
+
+    ----------------------------------------------------------------
+    -- [ระบบปุ่มกดบน UI]
+    ----------------------------------------------------------------
+    ActionButton.MouseButton1Click:Connect(function()
+        _G.AutoRebirthEnabled = not _G.AutoRebirthEnabled
+        
+        if _G.AutoRebirthEnabled then
+            ActionButton.Text = "AUTO: ON (RUNNING)"
+            ActionButton.BackgroundColor3 = Color3.fromRGB(50, 160, 50)
+            task.spawn(startRebirthLoop)
+        else
+            ActionButton.Text = "AUTO: OFF"
+            ActionButton.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
+        end
+    end)
+end
