@@ -64,8 +64,9 @@ ScreenGui.Name = "PremiumAutoFarmUI"
 local MainFrame = Instance.new("Frame")
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-MainFrame.Position = UDim2.new(0.5, -240, 0.4, -120)
-MainFrame.Size = UDim2.new(0, 220, 0, 335)
+MainFrame.Position = UDim2.new(0.5, -200, 0.4, -100)
+-- ปรับขนาดให้กว้างขึ้นเป็น 400 และเตี้ยลงเหลือแค่ 240 (แก้ปัญหาจอทะลุขอบล่าง)
+MainFrame.Size = UDim2.new(0, 400, 0, 240)
 MainFrame.Active = true
 MainFrame.Draggable = true
 
@@ -77,7 +78,7 @@ local Title = Instance.new("TextLabel")
 Title.Parent = MainFrame
 Title.BackgroundTransparency = 1
 Title.Position = UDim2.new(0, 10, 0, 5)
-Title.Size = UDim2.new(0, 160, 0, 25)
+Title.Size = UDim2.new(0, 250, 0, 25)
 Title.Font = Enum.Font.SourceSansBold
 Title.Text = "FLEX BUG ALL IN ONE"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -104,15 +105,18 @@ ContentFrame.BackgroundTransparency = 1
 ContentFrame.Position = UDim2.new(0, 0, 0, 35)
 ContentFrame.Size = UDim2.new(1, 0, 1, -35)
 
+----------------------------------------------------------------
+-- [แบ่งกลุ่มฝั่งซ้าย (LEFT COLUMN) - ระบบฟาร์มหลักและสกิล]
+----------------------------------------------------------------
 local ToggleButton = Instance.new("TextButton")
 ToggleButton.Parent = ContentFrame
 ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
-ToggleButton.Position = UDim2.new(0, 15, 0, 0)
-ToggleButton.Size = UDim2.new(0, 190, 0, 35)
+ToggleButton.Position = UDim2.new(0, 12, 0, 5)
+ToggleButton.Size = UDim2.new(0, 180, 0, 35)
 ToggleButton.Font = Enum.Font.SourceSansBold
 ToggleButton.Text = "START AUTOFARM"
 ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ToggleButton.TextSize = 16
+ToggleButton.TextSize = 14
 
 local ToggleCorner = Instance.new("UICorner")
 ToggleCorner.CornerRadius = UDim.new(0, 6)
@@ -121,12 +125,12 @@ ToggleCorner.Parent = ToggleButton
 local SkillLabel = Instance.new("TextLabel")
 SkillLabel.Parent = ContentFrame
 SkillLabel.BackgroundTransparency = 1
-SkillLabel.Position = UDim2.new(0, 15, 0, 45)
-SkillLabel.Size = UDim2.new(0, 190, 0, 20)
+SkillLabel.Position = UDim2.new(0, 12, 0, 48)
+SkillLabel.Size = UDim2.new(0, 180, 0, 20)
 SkillLabel.Font = Enum.Font.SourceSansBold
 SkillLabel.Text = "Select Skills:"
 SkillLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-SkillLabel.TextSize = 14
+SkillLabel.TextSize = 13
 SkillLabel.TextXAlignment = Enum.TextXAlignment.Left
 
 local skillNames = {"Z", "X", "C", "V"}
@@ -135,8 +139,8 @@ _G.SelectedSkills = {Z = true, X = true, C = true, V = false}
 for i, skill in ipairs(skillNames) do
     local btn = Instance.new("TextButton")
     btn.Parent = ContentFrame
-    btn.Size = UDim2.new(0, 40, 0, 30)
-    btn.Position = UDim2.new(0, 15 + ((i-1) * 48), 0, 70)
+    btn.Size = UDim2.new(0, 38, 0, 30)
+    btn.Position = UDim2.new(0, 12 + ((i-1) * 46), 0, 70)
     btn.Font = Enum.Font.SourceSansBold
     btn.Text = skill
     btn.TextSize = 14
@@ -157,16 +161,42 @@ for i, skill in ipairs(skillNames) do
         btn.BackgroundColor3 = _G.SelectedSkills[skill] and Color3.fromRGB(50, 150, 50) or Color3.fromRGB(150, 50, 50)
     end)
 end
+_G.AutoM1 = true
+
+local M1ToggleButton = Instance.new("TextButton")
+M1ToggleButton.Parent = ContentFrame
+M1ToggleButton.Size = UDim2.new(0, 180, 0, 30)
+M1ToggleButton.Position = UDim2.new(0, 12, 0, 108)
+M1ToggleButton.Font = Enum.Font.SourceSansBold
+M1ToggleButton.Text = "⚔️ AUTO M1: ON"
+M1ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+M1ToggleButton.TextSize = 13
+M1ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+
+local M1Corner = Instance.new("UICorner")
+M1Corner.CornerRadius = UDim.new(0, 5)
+M1Corner.Parent = M1ToggleButton
+
+M1ToggleButton.MouseButton1Click:Connect(function()
+    _G.AutoM1 = not _G.AutoM1
+    if _G.AutoM1 then
+        M1ToggleButton.Text = "⚔️ AUTO M1: ON"
+        M1ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+    else
+        M1ToggleButton.Text = "⚔️ AUTO M1: OFF"
+        M1ToggleButton.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+    end
+end)
 
 local SlotLabel = Instance.new("TextLabel")
 SlotLabel.Parent = ContentFrame
 SlotLabel.BackgroundTransparency = 1
-SlotLabel.Position = UDim2.new(0, 15, 0, 110)
-SlotLabel.Size = UDim2.new(0, 190, 0, 20)
+SlotLabel.Position = UDim2.new(0, 12, 0, 143)
+SlotLabel.Size = UDim2.new(0, 180, 0, 20)
 SlotLabel.Font = Enum.Font.SourceSansBold
 SlotLabel.Text = "Select Hotbar Slot:"
 SlotLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-SlotLabel.TextSize = 14
+SlotLabel.TextSize = 13
 SlotLabel.TextXAlignment = Enum.TextXAlignment.Left
 
 local slotButtons = {}
@@ -175,11 +205,11 @@ _G.SelectedSlot = 1
 for slotNum = 1, 5 do
     local btn = Instance.new("TextButton")
     btn.Parent = ContentFrame
-    btn.Size = UDim2.new(0, 34, 0, 30)
-    btn.Position = UDim2.new(0, 15 + ((slotNum-1) * 38), 0, 135)
+    btn.Size = UDim2.new(0, 32, 0, 28)
+    btn.Position = UDim2.new(0, 12 + ((slotNum-1) * 36), 0, 165)
     btn.Font = Enum.Font.SourceSansBold
     btn.Text = tostring(slotNum)
-    btn.TextSize = 14
+    btn.TextSize = 13
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     
     btn.BackgroundColor3 = (_G.SelectedSlot == slotNum) and Color3.fromRGB(50, 50, 150) or Color3.fromRGB(60, 60, 65)
@@ -197,53 +227,18 @@ for slotNum = 1, 5 do
         end
     end)
 end
-local OpenMatMenuButton = Instance.new("TextButton")
-OpenMatMenuButton.Parent = ContentFrame
-OpenMatMenuButton.BackgroundColor3 = Color3.fromRGB(70, 70, 80)
-OpenMatMenuButton.Position = UDim2.new(0, 15, 0, 175)
-OpenMatMenuButton.Size = UDim2.new(0, 190, 0, 32)
-OpenMatMenuButton.Font = Enum.Font.SourceSansBold
-OpenMatMenuButton.Text = "OPEN MATERIAL MENU ▶"
-OpenMatMenuButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-OpenMatMenuButton.TextSize = 13
 
-local OpenMatCorner = Instance.new("UICorner")
-OpenMatCorner.CornerRadius = UDim.new(0, 6)
-OpenMatCorner.Parent = OpenMatMenuButton
-
+----------------------------------------------------------------
+-- [แบ่งกลุ่มฝั่งขวา (RIGHT COLUMN) - ระบบบอสและวัตถุดิบ]
+----------------------------------------------------------------
 _G.TargetBossName = "GooGooGaaGaa"
 _G.AutoKillBoss = false
-
-local TargetBossLabel = Instance.new("TextLabel")
-TargetBossLabel.Parent = ContentFrame
-TargetBossLabel.BackgroundTransparency = 1
-TargetBossLabel.Position = UDim2.new(0, 15, 0, 212)
-TargetBossLabel.Size = UDim2.new(0, 190, 0, 15)
-TargetBossLabel.Font = Enum.Font.SourceSansItalic
-TargetBossLabel.Text = "Target: GooGooGaaGaa"
-TargetBossLabel.TextColor3 = Color3.fromRGB(180, 180, 190)
-TargetBossLabel.TextSize = 11
-TargetBossLabel.TextXAlignment = Enum.TextXAlignment.Center
-
-local SwitchBossButton = Instance.new("TextButton")
-SwitchBossButton.Parent = ContentFrame
-SwitchBossButton.BackgroundColor3 = Color3.fromRGB(140, 85, 25)
-SwitchBossButton.Position = UDim2.new(0, 15, 0, 232)
-SwitchBossButton.Size = UDim2.new(0, 190, 0, 28)
-SwitchBossButton.Font = Enum.Font.SourceSansBold
-SwitchBossButton.Text = "🔄 SWITCH TARGET BOSS"
-SwitchBossButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-SwitchBossButton.TextSize = 12
-
-local SwitchBossCorner = Instance.new("UICorner")
-SwitchBossCorner.CornerRadius = UDim.new(0, 5)
-SwitchBossCorner.Parent = SwitchBossButton
 
 local ActionBossButton = Instance.new("TextButton")
 ActionBossButton.Parent = ContentFrame
 ActionBossButton.BackgroundColor3 = Color3.fromRGB(110, 35, 130)
-ActionBossButton.Position = UDim2.new(0, 15, 0, 265)
-ActionBossButton.Size = UDim2.new(0, 190, 0, 30)
+ActionBossButton.Position = UDim2.new(0, 208, 0, 5) -- ย้ายมาฝั่งขวาพิกัด X=208
+ActionBossButton.Size = UDim2.new(0, 180, 0, 35)
 ActionBossButton.Font = Enum.Font.SourceSansBold
 ActionBossButton.Text = "⚡ SUMMON & KILL BOSS"
 ActionBossButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -253,11 +248,49 @@ local ActionBossCorner = Instance.new("UICorner")
 ActionBossCorner.CornerRadius = UDim.new(0, 5)
 ActionBossCorner.Parent = ActionBossButton
 
+local TargetBossLabel = Instance.new("TextLabel")
+TargetBossLabel.Parent = ContentFrame
+TargetBossLabel.BackgroundTransparency = 1
+TargetBossLabel.Position = UDim2.new(0, 208, 0, 45)
+TargetBossLabel.Size = UDim2.new(0, 180, 0, 15)
+TargetBossLabel.Font = Enum.Font.SourceSansItalic
+TargetBossLabel.Text = "Target: GooGooGaaGaa"
+TargetBossLabel.TextColor3 = Color3.fromRGB(180, 180, 190)
+TargetBossLabel.TextSize = 11
+
+local SwitchBossButton = Instance.new("TextButton")
+SwitchBossButton.Parent = ContentFrame
+SwitchBossButton.BackgroundColor3 = Color3.fromRGB(140, 85, 25)
+SwitchBossButton.Position = UDim2.new(0, 208, 0, 65)
+SwitchBossButton.Size = UDim2.new(0, 180, 0, 30)
+SwitchBossButton.Font = Enum.Font.SourceSansBold
+SwitchBossButton.Text = "🔄 SWITCH TARGET BOSS"
+SwitchBossButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+SwitchBossButton.TextSize = 12
+
+local SwitchBossCorner = Instance.new("UICorner")
+SwitchBossCorner.CornerRadius = UDim.new(0, 5)
+SwitchBossCorner.Parent = SwitchBossButton
+
+local OpenMatMenuButton = Instance.new("TextButton")
+OpenMatMenuButton.Parent = ContentFrame
+OpenMatMenuButton.BackgroundColor3 = Color3.fromRGB(70, 70, 80)
+OpenMatMenuButton.Position = UDim2.new(0, 208, 0, 108)
+OpenMatMenuButton.Size = UDim2.new(0, 180, 0, 32)
+OpenMatMenuButton.Font = Enum.Font.SourceSansBold
+OpenMatMenuButton.Text = "OPEN MATERIAL MENU ▶"
+OpenMatMenuButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+OpenMatMenuButton.TextSize = 12
+
+local OpenMatCorner = Instance.new("UICorner")
+OpenMatCorner.CornerRadius = UDim.new(0, 6)
+OpenMatCorner.Parent = OpenMatMenuButton
 local MaterialFrame = Instance.new("Frame")
 MaterialFrame.Parent = MainFrame
 MaterialFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+-- ขยับหน้าต่างเลือกไอเทมฟาร์มวัตถุดิบไปด้านข้าง โดยอิงตามความกว้างใหม่ของหน้าต่างหลัก
 MaterialFrame.Position = UDim2.new(1, 5, 0, 0)
-MaterialFrame.Size = UDim2.new(0, 270, 0, 335)
+MaterialFrame.Size = UDim2.new(0, 260, 0, 240) -- ปรับให้ความสูง 240 เท่าตัวหลักพอดี
 MaterialFrame.Visible = false
 
 local MatCorner = Instance.new("UICorner")
@@ -273,22 +306,22 @@ local MatTitle = Instance.new("TextLabel")
 MatTitle.Parent = MaterialFrame
 MatTitle.BackgroundTransparency = 1
 MatTitle.Position = UDim2.new(0, 10, 0, 5)
-MatTitle.Size = UDim2.new(0, 250, 0, 25)
+MatTitle.Size = UDim2.new(0, 240, 0, 25)
 MatTitle.Font = Enum.Font.SourceSansBold
 MatTitle.Text = "MATERIAL FARM SYSTEM"
 MatTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-MatTitle.TextSize = 14
+MatTitle.TextSize = 13
 MatTitle.TextXAlignment = Enum.TextXAlignment.Left
 
 local MatToggleButton = Instance.new("TextButton")
 MatToggleButton.Parent = MaterialFrame
 MatToggleButton.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
-MatToggleButton.Position = UDim2.new(0, 15, 0, 35)
-MatToggleButton.Size = UDim2.new(0, 240, 0, 35)
+MatToggleButton.Position = UDim2.new(0, 10, 0, 32)
+MatToggleButton.Size = UDim2.new(0, 240, 0, 32)
 MatToggleButton.Font = Enum.Font.SourceSansBold
 MatToggleButton.Text = "START MAT FARM"
 MatToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-MatToggleButton.TextSize = 14
+MatToggleButton.TextSize = 13
 
 local MatToggleCorner = Instance.new("UICorner")
 MatToggleCorner.CornerRadius = UDim.new(0, 6)
@@ -297,26 +330,26 @@ MatToggleCorner.Parent = MatToggleButton
 local ListLabel = Instance.new("TextLabel")
 ListLabel.Parent = MaterialFrame
 ListLabel.BackgroundTransparency = 1
-ListLabel.Position = UDim2.new(0, 15, 0, 75)
-ListLabel.Size = UDim2.new(0, 240, 0, 20)
+ListLabel.Position = UDim2.new(0, 10, 0, 70)
+ListLabel.Size = UDim2.new(0, 240, 0, 15)
 ListLabel.Font = Enum.Font.SourceSansBold
 ListLabel.Text = "Select Target Mob:"
 ListLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-ListLabel.TextSize = 13
+ListLabel.TextSize = 12
 ListLabel.TextXAlignment = Enum.TextXAlignment.Left
 
 local MatScroll = Instance.new("ScrollingFrame")
 MatScroll.Parent = MaterialFrame
 MatScroll.BackgroundTransparency = 1
-MatScroll.Position = UDim2.new(0, 15, 0, 100)
-MatScroll.Size = UDim2.new(0, 240, 0, 220)
+MatScroll.Position = UDim2.new(0, 10, 0, 90)
+MatScroll.Size = UDim2.new(0, 240, 0, 140) -- ย่อกล่องสกรอลล์ลงเพื่อให้พอดีกับกรอบเตี้ย
 MatScroll.CanvasSize = UDim2.new(0, 0, 0, 600)
 MatScroll.ScrollBarThickness = 4
 
 local MatListLayout = Instance.new("UIListLayout")
 MatListLayout.Parent = MatScroll
 MatListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-MatListLayout.Padding = UDim.new(0, 6)
+MatListLayout.Padding = UDim.new(0, 5)
 
 local mobGroupTargets = {
     {displayName = "Bacon (Wood + Bandage + Bacon)", mobName = "Bacon", enabled = true},
@@ -346,7 +379,7 @@ for i, group in ipairs(mobGroupTargets) do
     
     local row = Instance.new("TextButton")
     row.Parent = MatScroll
-    row.Size = UDim2.new(1, -5, 0, 32)
+    row.Size = UDim2.new(1, -5, 0, 30)
     row.BackgroundColor3 = group.enabled and Color3.fromRGB(45, 75, 45) or Color3.fromRGB(45, 45, 50)
     row.Font = Enum.Font.SourceSansBold
     row.Text = "  " .. group.displayName
@@ -391,7 +424,7 @@ MinButton.MouseButton1Click:Connect(function()
     else
         MaterialFrame.Visible = matMenuOpen
     end
-    MainFrame.Size = isMinimized and UDim2.new(0, 220, 0, 35) or UDim2.new(0, 220, 0, 335)
+    MainFrame.Size = isMinimized and UDim2.new(0, 400, 0, 35) or UDim2.new(0, 400, 0, 240)
     MinButton.Text = isMinimized and "+" or "-"
 end)
 
@@ -403,6 +436,7 @@ SwitchBossButton.MouseButton1Click:Connect(function()
     end
     TargetBossLabel.Text = "Target: " .. _G.TargetBossName
 end)
+
 ToggleButton.MouseButton1Click:Connect(function()
     _G.AutoFarm = not _G.AutoFarm
     if _G.AutoFarm then
@@ -443,7 +477,6 @@ end
 MatToggleButton.MouseButton1Click:Connect(function()
     if _G.OnMatFarmToggled then _G.OnMatFarmToggled() end
 end)
-
 local actionRemote = replicatedStorage:WaitForChild("Remotes"):WaitForChild("Action")
 local cancelQuestRemote = replicatedStorage:WaitForChild("Modules"):WaitForChild("NetworkFramework"):WaitForChild("NetworkEvent")
 
@@ -671,7 +704,6 @@ local function clickSummonAndClose(bossName)
     return success
 end
 
--- ลูปทำงานเบื้องหลังคอยซัมมอนบอสเรื่อย ๆ เมื่อระบบเปิดอยู่และไม่พบบอสในสนาม
 task.spawn(function()
     while true do
         if _G.AutoKillBoss and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -799,6 +831,25 @@ teleportConnection = runService.Heartbeat:Connect(function()
             local bv = localPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler")
             if bv then bv:Destroy() end
         end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        if _G.AutoM1 and (_G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss) and not isProcessingQuest then
+            pcall(function()
+                local character = localPlayer.Character
+                if character and currentTargetRoot then
+                    local tool = character:FindFirstChildOfClass("Tool")
+                    if tool then
+                        tool:Activate()
+                    else
+                        actionRemote:FireServer("Combat", "attack")
+                    end
+                end
+            end)
+        end
+        task.wait(0.1)
     end
 end)
 
