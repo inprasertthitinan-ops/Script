@@ -226,7 +226,7 @@ for slotNum = 1, 5 do
     end)
 end
 ----------------------------------------------------------------
--- [แบ่งกลุ่มฝั่งขวา (RIGHT COLUMN) - ระบบบอสและวัตถุดิบ]
+-- [แบ่งกลุ่มฝั่งขวา (RIGHT COLUMN) - ระบบควบคุมและเมนูย่อย]
 ----------------------------------------------------------------
 _G.TargetBossName = "GooGooGaaGaa"
 _G.AutoKillBoss = false
@@ -235,11 +235,11 @@ local ActionBossButton = Instance.new("TextButton")
 ActionBossButton.Parent = ContentFrame
 ActionBossButton.BackgroundColor3 = Color3.fromRGB(110, 35, 130)
 ActionBossButton.Position = UDim2.new(0, 208, 0, 5)
-ActionBossButton.Size = UDim2.new(0, 180, 0, 35)
+ActionBossButton.Size = UDim2.new(0, 180, 0, 26)
 ActionBossButton.Font = Enum.Font.SourceSansBold
 ActionBossButton.Text = "⚡ SUMMON & KILL BOSS"
 ActionBossButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ActionBossButton.TextSize = 13
+ActionBossButton.TextSize = 11
 
 local ActionBossCorner = Instance.new("UICorner")
 ActionBossCorner.CornerRadius = UDim.new(0, 5)
@@ -248,22 +248,22 @@ ActionBossCorner.Parent = ActionBossButton
 local TargetBossLabel = Instance.new("TextLabel")
 TargetBossLabel.Parent = ContentFrame
 TargetBossLabel.BackgroundTransparency = 1
-TargetBossLabel.Position = UDim2.new(0, 208, 0, 45)
+TargetBossLabel.Position = UDim2.new(0, 208, 0, 33)
 TargetBossLabel.Size = UDim2.new(0, 180, 0, 15)
 TargetBossLabel.Font = Enum.Font.SourceSansItalic
 TargetBossLabel.Text = "Target: GooGooGaaGaa"
 TargetBossLabel.TextColor3 = Color3.fromRGB(180, 180, 190)
-TargetBossLabel.TextSize = 11
+TargetBossLabel.TextSize = 10
 
 local SwitchBossButton = Instance.new("TextButton")
 SwitchBossButton.Parent = ContentFrame
 SwitchBossButton.BackgroundColor3 = Color3.fromRGB(140, 85, 25)
-SwitchBossButton.Position = UDim2.new(0, 208, 0, 65)
-SwitchBossButton.Size = UDim2.new(0, 180, 0, 30)
+SwitchBossButton.Position = UDim2.new(0, 208, 0, 50)
+SwitchBossButton.Size = UDim2.new(0, 180, 0, 26)
 SwitchBossButton.Font = Enum.Font.SourceSansBold
 SwitchBossButton.Text = "🔄 SWITCH TARGET BOSS"
 SwitchBossButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-SwitchBossButton.TextSize = 12
+SwitchBossButton.TextSize = 11
 
 local SwitchBossCorner = Instance.new("UICorner")
 SwitchBossCorner.CornerRadius = UDim.new(0, 5)
@@ -272,31 +272,62 @@ SwitchBossCorner.Parent = SwitchBossButton
 local OpenMatMenuButton = Instance.new("TextButton")
 OpenMatMenuButton.Parent = ContentFrame
 OpenMatMenuButton.BackgroundColor3 = Color3.fromRGB(70, 70, 80)
-OpenMatMenuButton.Position = UDim2.new(0, 208, 0, 108)
-OpenMatMenuButton.Size = UDim2.new(0, 180, 0, 32)
+OpenMatMenuButton.Position = UDim2.new(0, 208, 0, 82)
+OpenMatMenuButton.Size = UDim2.new(0, 180, 0, 24)
 OpenMatMenuButton.Font = Enum.Font.SourceSansBold
 OpenMatMenuButton.Text = "OPEN MATERIAL MENU ▶"
 OpenMatMenuButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-OpenMatMenuButton.TextSize = 12
+OpenMatMenuButton.TextSize = 11
 
 local OpenMatCorner = Instance.new("UICorner")
-OpenMatCorner.CornerRadius = UDim.new(0, 6)
+OpenMatCorner.CornerRadius = UDim.new(0, 5)
 OpenMatCorner.Parent = OpenMatMenuButton
 
 local ToggleStatsWindowButton = Instance.new("TextButton")
 ToggleStatsWindowButton.Parent = ContentFrame
 ToggleStatsWindowButton.BackgroundColor3 = Color3.fromRGB(45, 90, 140)
-ToggleStatsWindowButton.Position = UDim2.new(0, 208, 0, 148)
-ToggleStatsWindowButton.Size = UDim2.new(0, 180, 0, 32)
+ToggleStatsWindowButton.Position = UDim2.new(0, 208, 0, 110)
+ToggleStatsWindowButton.Size = UDim2.new(0, 180, 0, 24)
 ToggleStatsWindowButton.Font = Enum.Font.SourceSansBold
 ToggleStatsWindowButton.Text = "OPEN STATS MENU ⚙️"
 ToggleStatsWindowButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ToggleStatsWindowButton.TextSize = 12
+ToggleStatsWindowButton.TextSize = 11
 
 local ToggleStatsCorner = Instance.new("UICorner")
-ToggleStatsCorner.CornerRadius = UDim.new(0, 6)
+ToggleStatsCorner.CornerRadius = UDim.new(0, 5)
 ToggleStatsCorner.Parent = ToggleStatsWindowButton
 
+local OpenGachaMenuButton = Instance.new("TextButton")
+OpenGachaMenuButton.Parent = ContentFrame
+OpenGachaMenuButton.BackgroundColor3 = Color3.fromRGB(115, 50, 155)
+OpenGachaMenuButton.Position = UDim2.new(0, 208, 0, 138)
+OpenGachaMenuButton.Size = UDim2.new(0, 180, 0, 24)
+OpenGachaMenuButton.Font = Enum.Font.SourceSansBold
+OpenGachaMenuButton.Text = "🔮 OPEN GACHA MENU"
+OpenGachaMenuButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+OpenGachaMenuButton.TextSize = 11
+
+local OpenGachaCorner = Instance.new("UICorner")
+OpenGachaCorner.CornerRadius = UDim.new(0, 5)
+OpenGachaCorner.Parent = OpenGachaMenuButton
+
+local OpenRebirthMenuButton = Instance.new("TextButton")
+OpenRebirthMenuButton.Parent = ContentFrame
+OpenRebirthMenuButton.BackgroundColor3 = Color3.fromRGB(40, 140, 120)
+OpenRebirthMenuButton.Position = UDim2.new(0, 208, 0, 166)
+OpenRebirthMenuButton.Size = UDim2.new(0, 180, 0, 24)
+OpenRebirthMenuButton.Font = Enum.Font.SourceSansBold
+OpenRebirthMenuButton.Text = "✨ OPEN REBIRTH MENU"
+OpenRebirthMenuButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+OpenRebirthMenuButton.TextSize = 11
+
+local OpenRebirthCorner = Instance.new("UICorner")
+OpenRebirthCorner.CornerRadius = UDim.new(0, 5)
+OpenRebirthCorner.Parent = OpenRebirthMenuButton
+
+----------------------------------------------------------------
+-- [สร้างหน้าต่าง MATERIAL FRAME]
+----------------------------------------------------------------
 local MaterialFrame = Instance.new("Frame")
 MaterialFrame.Parent = MainFrame
 MaterialFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
@@ -354,7 +385,7 @@ MatScroll.Parent = MaterialFrame
 MatScroll.BackgroundTransparency = 1
 MatScroll.Position = UDim2.new(0, 10, 0, 90)
 MatScroll.Size = UDim2.new(0, 240, 0, 140)
-MatScroll.CanvasSize = UDim2.new(0, 0, 0, 600)
+MatScroll.CanvasSize = UDim2.new(0, 0, 0, 720)
 MatScroll.ScrollBarThickness = 4
 
 local MatListLayout = Instance.new("UIListLayout")
@@ -379,7 +410,8 @@ local mobGroupTargets = {
     {displayName = "Bacon Snow (Book of Rokuogan + Khaw phad kai)", mobName = "Bacon Snow", enabled = false},
     {displayName = "Bacon Ice (Cursed Wood + Cursed Iron)", mobName = "Bacon Ice", enabled = false},
     {displayName = "Bacon Lava (Orb Fire)", mobName = "Bacon Lava", enabled = false},
-    {displayName = "Bacon Hellfire (Orb Dragon + Dragon Fang)", mobName = "Bacon Hellfire", enabled = false}
+    {displayName = "Bacon Hellfire (Orb Dragon + Dragon Fang)", mobName = "Bacon Hellfire", enabled = false},
+    {displayName = "Bacon Jackson (Thompson Gun + Microphone)", mobName = "Bacon Jackson", enabled = false}
 }
 
 _G.SelectedMatMobs = {}
@@ -418,12 +450,246 @@ for i, group in ipairs(mobGroupTargets) do
     end)
 end
 
+----------------------------------------------------------------
+-- [รวมระบบหน้าต่าง GACHA FRAME]
+----------------------------------------------------------------
+local GachaFrame = Instance.new("Frame")
+GachaFrame.Parent = MainFrame
+GachaFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+GachaFrame.Position = UDim2.new(0, -225, 0, 125)
+GachaFrame.Size = UDim2.new(0, 220, 0, 185)
+GachaFrame.Visible = false
+
+local GachaCorner = Instance.new("UICorner")
+GachaCorner.CornerRadius = UDim.new(0, 10)
+GachaCorner.Parent = GachaFrame
+
+local GachaStroke = Instance.new("UIStroke")
+GachaStroke.Color = Color3.fromRGB(65, 65, 75)
+GachaStroke.Thickness = 1.5
+GachaStroke.Parent = GachaFrame
+
+local GachaTitle = Instance.new("TextLabel")
+GachaTitle.Parent = GachaFrame
+GachaTitle.BackgroundTransparency = 1
+GachaTitle.Position = UDim2.new(0, 0, 0, 8)
+GachaTitle.Size = UDim2.new(1, 0, 0, 20)
+GachaTitle.Font = Enum.Font.SourceSansBold
+GachaTitle.Text = "🔮 AUTO GACHA SYSTEM"
+GachaTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+GachaTitle.TextSize = 13
+GachaTitle.TextXAlignment = Enum.TextXAlignment.Center
+
+_G.AutoGachaMode = nil 
+_G.AutoOpenPrompt = false
+
+local gachaButtons = {}
+local gachaModes = {
+    {Name = "x5", Display = "🔥 Roll x5 (50 Gem)"},
+    {Name = "x10", Display = "💎 Roll x10 (100 Gem)"},
+    {Name = "x15", Display = "⚡ Roll x15 (150 Gem)"}
+}
+
+for i, mode in ipairs(gachaModes) do
+    local btn = Instance.new("TextButton")
+    btn.Parent = GachaFrame
+    btn.Size = UDim2.new(1, -24, 0, 30)
+    btn.Position = UDim2.new(0, 12, 0, 35 + ((i-1) * 35))
+    btn.Font = Enum.Font.SourceSansBold
+    btn.Text = mode.Display
+    btn.TextColor3 = Color3.fromRGB(230, 230, 230)
+    btn.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 6)
+    btnCorner.Parent = btn
+    
+    gachaButtons[mode.Name] = btn
+    
+    btn.MouseButton1Click:Connect(function()
+        if _G.AutoGachaMode == mode.Name then
+            _G.AutoGachaMode = nil
+            btn.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+            btn.TextColor3 = Color3.fromRGB(230, 230, 230)
+        else
+            _G.AutoGachaMode = mode.Name
+            for k, b in pairs(gachaButtons) do
+                if k == mode.Name then
+                    b.BackgroundColor3 = Color3.fromRGB(30, 130, 200)
+                    b.TextColor3 = Color3.fromRGB(255, 255, 255)
+                else
+                    b.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+                    b.TextColor3 = Color3.fromRGB(230, 230, 230)
+                end
+            end
+        end
+    end)
+end
+
+local PromptBtn = Instance.new("TextButton")
+PromptBtn.Parent = GachaFrame
+PromptBtn.Size = UDim2.new(1, -24, 0, 28)
+PromptBtn.Position = UDim2.new(0, 12, 0, 140)
+PromptBtn.Font = Enum.Font.SourceSansBold
+PromptBtn.Text = "📦 AUTO OPEN CHEST: OFF"
+PromptBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+PromptBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+
+local PromptCorner = Instance.new("UICorner")
+PromptCorner.CornerRadius = UDim.new(0, 6)
+PromptCorner.Parent = PromptBtn
+
+PromptBtn.MouseButton1Click:Connect(function()
+    _G.AutoOpenPrompt = not _G.AutoOpenPrompt
+    if _G.AutoOpenPrompt then
+        PromptBtn.Text = "📦 AUTO OPEN CHEST: ON"
+        PromptBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+    else
+        PromptBtn.Text = "📦 AUTO OPEN CHEST: OFF"
+        PromptBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+    end
+end)
+----------------------------------------------------------------
+-- [รวมระบบหน้าต่าง AUTO REBIRTH FRAME]
+----------------------------------------------------------------
+local RebirthFrame = Instance.new("Frame")
+RebirthFrame.Parent = MainFrame
+RebirthFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+RebirthFrame.Position = UDim2.new(0, -225, 0, 20)
+RebirthFrame.Size = UDim2.new(0, 220, 0, 95)
+RebirthFrame.Visible = false
+
+local FrameCorner = Instance.new("UICorner")
+FrameCorner.CornerRadius = UDim.new(0, 8)
+FrameCorner.Parent = RebirthFrame
+
+local FrameStroke = Instance.new("UIStroke")
+FrameStroke.Color = Color3.fromRGB(75, 75, 85)
+FrameStroke.Thickness = 1.5
+FrameStroke.Parent = RebirthFrame
+
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Parent = RebirthFrame
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Position = UDim2.new(0, 0, 0, 8)
+TitleLabel.Size = UDim2.new(1, 0, 0, 20)
+TitleLabel.Font = Enum.Font.SourceSansBold
+TitleLabel.Text = "✨ AUTO REBIRTH"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.TextSize = 13
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Center
+
+local ConditionLabel = Instance.new("TextLabel")
+ConditionLabel.Parent = RebirthFrame
+ConditionLabel.BackgroundTransparency = 1
+ConditionLabel.Position = UDim2.new(0, 0, 0, 26)
+ConditionLabel.Size = UDim2.new(1, 0, 0, 15)
+ConditionLabel.Font = Enum.Font.SourceSansItalic
+ConditionLabel.Text = "(Required: Lv. 20000 / Max)"
+ConditionLabel.TextColor3 = Color3.fromRGB(170, 170, 180)
+ConditionLabel.TextSize = 10
+ConditionLabel.TextXAlignment = Enum.TextXAlignment.Center
+
+local ActionButton = Instance.new("TextButton")
+ActionButton.Parent = RebirthFrame
+ActionButton.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
+ActionButton.Position = UDim2.new(0, 12, 0, 48)
+ActionButton.Size = UDim2.new(1, -24, 0, 32)
+ActionButton.Font = Enum.Font.SourceSansBold
+ActionButton.Text = "AUTO: OFF"
+ActionButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ActionButton.TextSize = 12
+
+local ButtonCorner = Instance.new("UICorner")
+ButtonCorner.CornerRadius = UDim.new(0, 6)
+ButtonCorner.Parent = ActionButton
+
+_G.AutoRebirthEnabled = false
+
+local function isMaxLevel()
+    local ready = false
+    pcall(function()
+        local playerGui = localPlayer:FindFirstChild("PlayerGui")
+        if playerGui then
+            for _, v in pairs(playerGui:GetDescendants()) do
+                if v:IsA("TextLabel") and (string.find(v.Text, "20000") or string.find(string.lower(v.Text), "max")) then
+                    ready = true
+                    break
+                end
+            end
+        end
+    end)
+    return ready
+end
+
+local function clickRebirthButton()
+    pcall(function()
+        local playerGui = localPlayer:FindFirstChild("PlayerGui")
+        if playerGui then
+            local frameStats = playerGui:FindFirstChild("Frame_Stats", true)
+            if frameStats then
+                local rebirthFrame = frameStats:FindFirstChild("Rebirth")
+                if rebirthFrame and rebirthFrame:IsA("Frame") then
+                    local realButton = rebirthFrame:FindFirstChild("Rebirth")
+                    if realButton and realButton:IsA("TextButton") then
+                        if firesignal then
+                            firesignal(realButton.MouseButton1Click)
+                        else
+                            realButton:Activate()
+                        end
+                    end
+                end
+            end
+        end
+    end)
+end
+
+local function startRebirthLoop()
+    while _G.AutoRebirthEnabled do
+        if isMaxLevel() then
+            clickRebirthButton()
+        end
+        task.wait(0.5)
+    end
+end
+
+ActionButton.MouseButton1Click:Connect(function()
+    _G.AutoRebirthEnabled = not _G.AutoRebirthEnabled
+    if _G.AutoRebirthEnabled then
+        ActionButton.Text = "AUTO: ON (RUNNING)"
+        ActionButton.BackgroundColor3 = Color3.fromRGB(50, 160, 50)
+        task.spawn(startRebirthLoop)
+    else
+        ActionButton.Text = "AUTO: OFF"
+        ActionButton.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
+    end
+end)
+
+----------------------------------------------------------------
+-- [EVENT CONNECTORS & TOGGLES]
+----------------------------------------------------------------
 local matMenuOpen = false
 OpenMatMenuButton.MouseButton1Click:Connect(function()
     matMenuOpen = not matMenuOpen
     MaterialFrame.Visible = matMenuOpen
     OpenMatMenuButton.Text = matMenuOpen and "CLOSE MATERIAL MENU ◀" or "OPEN MATERIAL MENU ▶"
     OpenMatMenuButton.BackgroundColor3 = matMenuOpen and Color3.fromRGB(30, 120, 180) or Color3.fromRGB(70, 70, 80)
+end)
+
+local gachaMenuOpen = false
+OpenGachaMenuButton.MouseButton1Click:Connect(function()
+    gachaMenuOpen = not gachaMenuOpen
+    GachaFrame.Visible = gachaMenuOpen
+    OpenGachaMenuButton.Text = gachaMenuOpen and "🔮 CLOSE GACHA MENU" or "🔮 OPEN GACHA MENU"
+    OpenGachaMenuButton.BackgroundColor3 = gachaMenuOpen and Color3.fromRGB(180, 50, 150) or Color3.fromRGB(115, 50, 155)
+end)
+
+local rebirthMenuOpen = false
+OpenRebirthMenuButton.MouseButton1Click:Connect(function()
+    rebirthMenuOpen = not rebirthMenuOpen
+    RebirthFrame.Visible = rebirthMenuOpen
+    OpenRebirthMenuButton.Text = rebirthMenuOpen and "✨ CLOSE REBIRTH MENU" or "✨ OPEN REBIRTH MENU"
+    OpenRebirthMenuButton.BackgroundColor3 = rebirthMenuOpen and Color3.fromRGB(50, 160, 130) or Color3.fromRGB(40, 140, 120)
 end)
 
 SwitchBossButton.MouseButton1Click:Connect(function()
@@ -474,6 +740,49 @@ end
 
 MatToggleButton.MouseButton1Click:Connect(function()
     if _G.OnMatFarmToggled then _G.OnMatFarmToggled() end
+end)
+
+----------------------------------------------------------------
+-- [BACKGROUND LOOPS FOR GACHA SYSTEM]
+----------------------------------------------------------------
+task.spawn(function()
+    while true do
+        if _G.AutoGachaMode then
+            pcall(function()
+                local playerGui = localPlayer:FindFirstChild("PlayerGui")
+                if playerGui then
+                    local randomFrame = playerGui:FindFirstChild("Frame_RandomItem", true)
+                    local displayFrame = randomFrame and randomFrame:FindFirstChild("DisplayFrame")
+                    local targetButton = displayFrame and displayFrame:FindFirstChild(_G.AutoGachaMode)
+                    
+                    if targetButton and targetButton.Visible then
+                        firesignal(targetButton.MouseButton1Click)
+                    end
+                end
+            end)
+        end
+        task.wait(0.3)
+    end
+end)
+
+task.spawn(function()
+    while true do
+        if _G.AutoOpenPrompt and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            pcall(function()
+                local chest = game.Workspace:FindFirstChild("Chest")
+                if chest and chest:FindFirstChild("Root") and chest.Root:FindFirstChild("Prompt") then
+                    local prompt = chest.Root.Prompt
+                    local myRoot = localPlayer.Character.HumanoidRootPart
+                    local distance = (myRoot.Position - chest.Root.Position).Magnitude
+                    
+                    if distance <= 15 then
+                        fireproximityprompt(prompt)
+                    end
+                end
+            end)
+        end
+        task.wait(0.2)
+    end
 end)
 ----------------------------------------------------------------
 -- [[ ระบบและหน้าต่าง UI สำหรับ AUTO STATS - ผูกติดกับเมนูหลัก ]]
@@ -707,7 +1016,8 @@ local matPositionMap = {
     ["Bacon Snow"] = Vector3.new(62.811, 9.5, -2406.402),
     ["Bacon Ice"] = Vector3.new(62.811, 9.5, -2406.402),
     ["Bacon Lava"] = Vector3.new(1109.942, 6.856, -2179.784),
-    ["Bacon Hellfire"] = Vector3.new(1109.942, 6.856, -2179.784)
+    ["Bacon Hellfire"] = Vector3.new(1109.942, 6.856, -2179.784),
+    ["Bacon Jackson"] = Vector3.new(96.728, 12.381, -929.966)
 }
 
 local questMap = {
@@ -732,7 +1042,6 @@ local questMap = {
     {minLv = 18000, maxLv = 18999, npc = "NPC_Quest19", mob = "Bacon Lava"},
     {minLv = 19000, maxLv = math.huge, npc = "NPC_Quest20", mob = "Bacon Hellfire"}
 }
-
 local function activateBuso()
     pcall(function() actionRemote:FireServer("Misc", "buso") end)
 end
@@ -905,6 +1214,7 @@ local function clickSummonAndClose(bossName)
     end)
     return success
 end
+
 task.spawn(function()
     while true do
         if _G.AutoKillBoss and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -1110,139 +1420,3 @@ localPlayer.CharacterAdded:Connect(function()
     task.wait(2.0)
     if _G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss then activateBuso() end
 end)
-
-----------------------------------------------------------------
--- [ส่วนระบบ AUTO REBIRTH ทำงานแบบแยกส่วนอิสระ (โดนคลุมอยู่ใน do...end)]
-----------------------------------------------------------------
-do
-    -- ล้าง UI เก่าออกไปก่อนป้องกันหน้าต่างซ้อนกัน
-    if CoreGui:FindFirstChild("AutoRebirthSystemUI") then
-        CoreGui.AutoRebirthSystemUI:Destroy()
-    end
-
-    ----------------------------------------------------------------
-    -- [สร้างหน้าต่าง UI ควบคุม - แบบเรียบง่าย]
-    ----------------------------------------------------------------
-    local RebirthGui = Instance.new("ScreenGui")
-    RebirthGui.Parent = CoreGui
-    RebirthGui.Name = "AutoRebirthSystemUI"
-
-    local RebirthFrame = Instance.new("Frame")
-    RebirthFrame.Parent = RebirthGui
-    RebirthFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-    RebirthFrame.Position = UDim2.new(0.5, -90, 0.15, 0)
-    RebirthFrame.Size = UDim2.new(0, 180, 0, 95)
-    RebirthFrame.Active = true
-    RebirthFrame.Draggable = true 
-
-    local FrameCorner = Instance.new("UICorner")
-    FrameCorner.CornerRadius = UDim.new(0, 8)
-    FrameCorner.Parent = RebirthFrame
-
-    local FrameStroke = Instance.new("UIStroke")
-    FrameStroke.Color = Color3.fromRGB(75, 75, 85)
-    FrameStroke.Thickness = 1.5
-    FrameStroke.Parent = RebirthFrame
-
-    local TitleLabel = Instance.new("TextLabel")
-    TitleLabel.Parent = RebirthFrame
-    TitleLabel.BackgroundTransparency = 1
-    TitleLabel.Position = UDim2.new(0, 0, 0, 8)
-    TitleLabel.Size = UDim2.new(1, 0, 0, 20)
-    TitleLabel.Font = Enum.Font.SourceSansBold
-    TitleLabel.Text = "✨ AUTO REBIRTH"
-    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    TitleLabel.TextSize = 14
-
-    local ConditionLabel = Instance.new("TextLabel")
-    ConditionLabel.Parent = RebirthFrame
-    ConditionLabel.BackgroundTransparency = 1
-    ConditionLabel.Position = UDim2.new(0, 0, 0, 26)
-    ConditionLabel.Size = UDim2.new(1, 0, 0, 15)
-    ConditionLabel.Font = Enum.Font.SourceSansItalic
-    ConditionLabel.Text = "(Required: Lv. 20000 / Max)"
-    ConditionLabel.TextColor3 = Color3.fromRGB(170, 170, 180)
-    ConditionLabel.TextSize = 11
-
-    local ActionButton = Instance.new("TextButton")
-    ActionButton.Parent = RebirthFrame
-    ActionButton.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
-    ActionButton.Position = UDim2.new(0, 12, 0, 48)
-    ActionButton.Size = UDim2.new(1, -24, 0, 32)
-    ActionButton.Font = Enum.Font.SourceSansBold
-    ActionButton.Text = "AUTO: OFF"
-    ActionButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    ActionButton.TextSize = 13
-
-    local ButtonCorner = Instance.new("UICorner")
-    ButtonCorner.CornerRadius = UDim.new(0, 6)
-    ButtonCorner.Parent = ActionButton
-
-    ----------------------------------------------------------------
-    -- [ระบบการทำงานหลัก]
-    ----------------------------------------------------------------
-    _G.AutoRebirthEnabled = false
-
-    local function isMaxLevel()
-        local ready = false
-        pcall(function()
-            local playerGui = localPlayer:FindFirstChild("PlayerGui")
-            if playerGui then
-                for _, v in pairs(playerGui:GetDescendants()) do
-                    if v:IsA("TextLabel") and (string.find(v.Text, "20000") or string.find(string.lower(v.Text), "max")) then
-                        ready = true
-                        break
-                    end
-                end
-            end
-        end)
-        return ready
-    end
-
-    local function clickRebirthButton()
-        pcall(function()
-            local playerGui = localPlayer:FindFirstChild("PlayerGui")
-            if playerGui then
-                local frameStats = playerGui:FindFirstChild("Frame_Stats", true)
-                if frameStats then
-                    local rebirthFrame = frameStats:FindFirstChild("Rebirth")
-                    if rebirthFrame and rebirthFrame:IsA("Frame") then
-                        local realButton = rebirthFrame:FindFirstChild("Rebirth")
-                        if realButton and realButton:IsA("TextButton") then
-                            if firesignal then
-                                firesignal(realButton.MouseButton1Click)
-                            else
-                                realButton:Activate()
-                            end
-                        end
-                    end
-                end
-            end
-        end)
-    end
-
-    local function startRebirthLoop()
-        while _G.AutoRebirthEnabled do
-            if isMaxLevel() then
-                clickRebirthButton()
-            end
-            task.wait(0.5)
-        end
-    end
-
-    ----------------------------------------------------------------
-    -- [ระบบปุ่มกดบน UI]
-    ----------------------------------------------------------------
-    ActionButton.MouseButton1Click:Connect(function()
-        _G.AutoRebirthEnabled = not _G.AutoRebirthEnabled
-        
-        if _G.AutoRebirthEnabled then
-            ActionButton.Text = "AUTO: ON (RUNNING)"
-            ActionButton.BackgroundColor3 = Color3.fromRGB(50, 160, 50)
-            task.spawn(startRebirthLoop)
-        else
-            ActionButton.Text = "AUTO: OFF"
-            ActionButton.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
-        end
-    end)
-end
