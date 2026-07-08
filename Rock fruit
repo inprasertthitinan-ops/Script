@@ -7,11 +7,13 @@ local replicatedStorage = game:GetService("ReplicatedStorage")
 local localPlayer = players.LocalPlayer
 
 ----------------------------------------------------------------
--- [กำหนดค่าตัวแปรและตั้งค่าเบื้องต้น]
+-- [Config & Variables]
 ----------------------------------------------------------------
 _G.AutoFarm = false
 _G.AutoMaterial = false
 _G.AutoKillBoss = false
+_G.AutoSummonDuck = false
+_G.AutoBusoForced = false
 _G.AutoM1 = true
 _G.SelectedSlot = 1
 _G.SelectedSkills = {Z = true, X = true, C = true, V = false}
@@ -26,7 +28,8 @@ _G.SelectedMatMobs = {}
 _G.HasTeleportedToIsland = false
 
 local mobGroupTargets = {
-    {displayName = "Bacon (Wood + Bandage + Bacon)", mobName = "Bacon", enabled = true},
+    {displayName = "Bacon Monster (Heart of Envy + Cake Monster)", mobName = "Bacon Monster", enabled = true},
+    {displayName = "Bacon (Wood + Bandage + Bacon)", mobName = "Bacon", enabled = false},
     {displayName = "Bacon Strong (Dumbbell + Sandbag)", mobName = "Bacon Strong", enabled = false},
     {displayName = "Gorilla (Old Iron + Orb Black)", mobName = "Gorilla", enabled = false},
     {displayName = "Bacon Tarzan (Old Rock + Old Wood)", mobName = "Bacon Tarzan", enabled = false},
@@ -60,7 +63,9 @@ local currentTargetRoot = nil
 local teleportConnection = nil
 local lastNpcTarget = ""
 local isProcessingQuest = false
+
 local matPositionMap = {
+    ["Bacon Monster"] = Vector3.new(96.728, 12.381, -929.966),
     ["Bacon"] = Vector3.new(-67.018, 7.859, -224.919),
     ["Bacon Strong"] = Vector3.new(-67.018, 7.859, -224.919),
     ["Gorilla"] = Vector3.new(-1172.509, 7.398, -1193.154),
@@ -103,10 +108,25 @@ local questMap = {
     {minLv = 18000, maxLv = 18999, npc = "NPC_Quest19", mob = "Bacon Lava"},
     {minLv = 19000, maxLv = math.huge, npc = "NPC_Quest20", mob = "Bacon Hellfire"}
 }
+----------------------------------------------------------------
+-- [Core Functions]
+----------------------------------------------------------------
+local function checkBusoActive()
+    local char = localPlayer.Character
+    if char then
+        -- ตรวจสอบจากโมเดล Effect หรือชิ้นส่วนในตัวละครว่ามีสถานะ Buso ทำงานอยู่ไหม
+        for _, child in pairs(char:GetDescendants()) do
+            if child:IsA("Model") and (string.find(string.lower(child.Name), "buso") or string.find(string.lower(child.Name), "haki")) then
+                return true
+            end
+            if child:IsA("BasePart") and child.Name == "LeftArm" and child.Color == Color3.fromRGB(0, 0, 0) then
+                return true
+            end
+        end
+    end
+    return false
+end
 
-----------------------------------------------------------------
--- [ฟังก์ชันพื้นฐานของระบบ]
-----------------------------------------------------------------
 local function activateBuso()
     pcall(function() actionRemote:FireServer("Misc", "buso") end)
 end
@@ -194,6 +214,7 @@ local function getToolAtSlot(slotIndex)
     end
     return nil
 end
+
 local function equipSelectedSlot()
     pcall(function()
         local character = localPlayer.Character
@@ -280,6 +301,20 @@ local function clickSummonAndClose(bossName)
 end
 
 local function getLockedMobTarget()
+    if _G.AutoSummonDuck then
+        local mobFolder = workspace:FindFirstChild("Mob")
+        if mobFolder then
+            for _, mob in pairs(mobFolder:GetChildren()) do
+                if mob.Name == "Duck Monster" then
+                    local root = mob:FindFirstChild("HumanoidRootPart")
+                    local humanoid = mob:FindFirstChildOfClass("Humanoid")
+                    if root and (not humanoid or humanoid.Health > 0) then return root end
+                end
+            end
+        end
+        return nil
+    end
+
     if _G.AutoKillBoss then
         local bossFolder = workspace:FindFirstChild("Boss")
         if bossFolder then
@@ -361,11 +396,8 @@ local function clickRebirthButton()
                 if rebirthFrame and rebirthFrame:IsA("Frame") then
                     local realButton = rebirthFrame:FindFirstChild("Rebirth")
                     if realButton and realButton:IsA("TextButton") then
-                        if firesignal then
-                            firesignal(realButton.MouseButton1Click)
-                        else
-                            realButton:Activate()
-                        end
+                        if firesignal then firesignal(realButton.MouseButton1Click)
+                        else realButton:Activate() end
                     end
                 end
             end
@@ -375,12 +407,11 @@ end
 
 local function startRebirthLoop()
     while _G.AutoRebirthEnabled do
-        if isMaxLevel() then
-            clickRebirthButton()
-        end
+        if isMaxLevel() then clickRebirthButton() end
         task.wait(0.5)
     end
 end
+
 local function runAutoStatsLoop()
     while _G.AutoStatsEnabled do
         pcall(function()
@@ -424,13 +455,13 @@ _G.StartFarmLoopFunc = function()
     task.spawn(function()
         local firstConfig = getCurrentQuestConfig()
         if firstConfig then lastNpcTarget = firstConfig.npc end
-        activateBuso()
+        if (_G.AutoBusoForced and not checkBusoActive()) or _G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss or _G.AutoSummonDuck then activateBuso() end
         
-        while _G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss do
+        while _G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss or _G.AutoSummonDuck do
             if not isProcessingQuest then
                 equipSelectedSlot()
                 
-                if _G.AutoFarm and not _G.AutoMaterial and not _G.AutoKillBoss then
+                if _G.AutoFarm and not _G.AutoMaterial and not _G.AutoKillBoss and not _G.AutoSummonDuck then
                     local config = getCurrentQuestConfig()
                     local currentNPC = getTargetNPC()
                     if currentNPC and (tick() - lastQuestTime > questCheckInterval) then
@@ -446,7 +477,7 @@ _G.StartFarmLoopFunc = function()
                     currentTargetRoot = targetMobRoot
                     local orderedSkills = {"Z", "X", "C", "V"}
                     for _, skill in ipairs(orderedSkills) do
-                        if (not _G.AutoFarm and not _G.AutoMaterial and not _G.AutoKillBoss) or currentTargetRoot ~= targetMobRoot or isProcessingQuest then break end
+                        if (not _G.AutoFarm and not _G.AutoMaterial and not _G.AutoKillBoss and not _G.AutoSummonDuck) or currentTargetRoot ~= targetMobRoot or isProcessingQuest then break end
                         if _G.SelectedSkills[skill] then
                             useSkillRemote(string.lower(skill))
                             task.wait(skillDelay)
@@ -461,9 +492,8 @@ _G.StartFarmLoopFunc = function()
         end
     end)
 end
-
 ----------------------------------------------------------------
--- [การตั้งค่า UI Redzlib V5]
+-- [UI Redzlib V5 Setup - English Only]
 ----------------------------------------------------------------
 local redzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/daucobonhi/UiRedzV5/refs/heads/main/DemoUi.lua"))()
 
@@ -479,7 +509,7 @@ local MaterialTab = Window:MakeTab({"Material", "package"})
 local StatsTab = Window:MakeTab({"Stats", "settings"})
 local RebirthTab = Window:MakeTab({"Rebirth", "refresh-cw"})
 
--- [Main Tab - Farm & Settings]
+-- [Main Tab]
 MainTab:AddSection({"Auto Farm System"})
 
 MainTab:AddToggle({
@@ -490,6 +520,7 @@ MainTab:AddToggle({
         if Value then
             _G.AutoMaterial = false
             _G.AutoKillBoss = false
+            _G.AutoSummonDuck = false
             if _G.StartFarmLoopFunc then _G.StartFarmLoopFunc() end
         end
     end
@@ -500,6 +531,14 @@ MainTab:AddToggle({
     Default = true,
     Callback = function(Value)
         _G.AutoM1 = Value
+    end
+})
+
+MainTab:AddToggle({
+    Name = "Auto Forced Buso",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoBusoForced = Value
     end
 })
 
@@ -529,11 +568,7 @@ MainTab:AddDropdown({
     Options = {"None", "x5", "x10", "x15"},
     Default = "None",
     Callback = function(Value)
-        if Value == "None" then
-            _G.AutoGachaMode = nil
-        else
-            _G.AutoGachaMode = Value
-        end
+        if Value == "None" then _G.AutoGachaMode = nil else _G.AutoGachaMode = Value end
     end
 })
 
@@ -544,8 +579,9 @@ MainTab:AddToggle({
         _G.AutoOpenPrompt = Value
     end
 })
--- [Boss Tab - Boss Killing]
-BossTab:AddSection({"Boss System"})
+
+-- [Boss Tab]
+BossTab:AddSection({"Normal Boss System"})
 
 local BossOptions = {"GooGooGaaGaa", "Dark Bacon"}
 BossTab:AddDropdown({
@@ -558,19 +594,36 @@ BossTab:AddDropdown({
 })
 
 BossTab:AddToggle({
-    Name = "Auto Summon & Kill Boss",
+    Name = "Auto Summon & Kill Boss (Normal)",
     Default = false,
     Callback = function(Value)
         _G.AutoKillBoss = Value
         if Value then
             _G.AutoFarm = false 
             _G.AutoMaterial = false
+            _G.AutoSummonDuck = false
             if _G.StartFarmLoopFunc then _G.StartFarmLoopFunc() end
         end
     end
 })
 
--- [Material Tab - Material Farming]
+BossTab:AddSection({"Summon Duck Monster"})
+
+BossTab:AddToggle({
+    Name = "Auto Summon & Kill Duck Monster",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoSummonDuck = Value
+        if Value then
+            _G.AutoFarm = false
+            _G.AutoMaterial = false
+            _G.AutoKillBoss = false
+            if _G.StartFarmLoopFunc then _G.StartFarmLoopFunc() end
+        end
+    end
+})
+
+-- [Material Tab]
 MaterialTab:AddSection({"Material System"})
 
 MaterialTab:AddToggle({
@@ -581,6 +634,7 @@ MaterialTab:AddToggle({
         if Value then
             _G.AutoFarm = false
             _G.AutoKillBoss = false
+            _G.AutoSummonDuck = false
             _G.HasTeleportedToIsland = false
             if _G.StartFarmLoopFunc then _G.StartFarmLoopFunc() end
         end
@@ -599,25 +653,20 @@ MaterialTab:AddDropdown({
     Callback = function(Value)
         _G.HasTeleportedToIsland = false
         for _, g in ipairs(mobGroupTargets) do
-            if g.displayName == Value then
-                _G.SelectedMatMobs[g.mobName] = true
-            else
-                _G.SelectedMatMobs[g.mobName] = false
-            end
+            if g.displayName == Value then _G.SelectedMatMobs[g.mobName] = true
+            else _G.SelectedMatMobs[g.mobName] = false end
         end
     end
 })
 
--- [Stats Tab - Auto Stats]
+-- [Stats Tab]
 StatsTab:AddSection({"Auto Stats Config"})
 
 StatsTab:AddTextBox({
     Name = "Upgrade Amount",
     Default = "1000",
     TextDisappear = false,
-    Callback = function(Value)
-        _G.UpgradeAmount = Value
-    end
+    Callback = function(Value) _G.UpgradeAmount = Value end
 })
 
 StatsTab:AddToggle({
@@ -625,9 +674,7 @@ StatsTab:AddToggle({
     Default = false,
     Callback = function(Value)
         _G.AutoStatsEnabled = Value
-        if Value then
-            task.spawn(runAutoStatsLoop)
-        end
+        if Value then task.spawn(runAutoStatsLoop) end
     end
 })
 
@@ -637,7 +684,7 @@ StatsTab:AddToggle({Name = "Defense", Default = false, Callback = function(Value
 StatsTab:AddToggle({Name = "Sword", Default = false, Callback = function(Value) _G.AutoStatsSettings.Sword = Value end})
 StatsTab:AddToggle({Name = "Fruit & Special", Default = false, Callback = function(Value) _G.AutoStatsSettings.Power = Value end})
 
--- [Rebirth Tab - Auto Rebirth]
+-- [Rebirth Tab]
 RebirthTab:AddSection({"Rebirth System"})
 
 RebirthTab:AddToggle({
@@ -645,17 +692,60 @@ RebirthTab:AddToggle({
     Default = false,
     Callback = function(Value)
         _G.AutoRebirthEnabled = Value
-        if Value then
-            task.spawn(startRebirthLoop)
-        end
+        if Value then task.spawn(startRebirthLoop) end
     end
 })
 
 ----------------------------------------------------------------
--- [ส่วนของ Background Tasks แบบเดิมที่คงไว้]
+-- [Background Threads & Fixed Buso Loop]
 ----------------------------------------------------------------
+-- ลูปตรวจสอบอัจฉริยะ: ถ้าตัวแปรเปิดอยู่ และพบว่าฮาคิปิดอยู่จริง ถึงจะส่งคำสั่งเปิด (แก้ปัญหาเปิดปิดรัวๆ)
 task.spawn(function()
     while true do
+        if _G.AutoBusoForced then
+            pcall(function()
+                if not checkBusoActive() then
+                    activateBuso()
+                end
+            end)
+        end
+        task.wait(0.5)
+    end
+end)
+
+task.spawn(function()
+    while true do
+        if _G.AutoSummonDuck and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local mobFolder = workspace:FindFirstChild("Mob")
+            local duckFound = false
+            if mobFolder then
+                for _, m in pairs(mobFolder:GetChildren()) do
+                    if m.Name == "Duck Monster" then
+                        local hum = m:FindFirstChildOfClass("Humanoid")
+                        if not hum or hum.Health > 0 then duckFound = true; break end
+                    end
+                end
+            end
+            
+            if not duckFound then
+                local currentPos = localPlayer.Character.HumanoidRootPart.CFrame
+                local duckNpc = workspace:FindFirstChild("NpcPrompt") and workspace.NpcPrompt:FindFirstChild("DuckMonster")
+                local targetPart = duckNpc and (duckNpc:FindFirstChild("HumanoidRootPart") or duckNpc:FindFirstChild("Duck"))
+                
+                if targetPart then
+                    currentTargetRoot = nil
+                    localPlayer.Character.HumanoidRootPart.CFrame = targetPart.CFrame * CFrame.new(0, 0, -3)
+                    task.wait(0.4)
+                    local prompt = duckNpc:FindFirstChildWhichIsA("ProximityPrompt", true)
+                    if prompt then fireproximityprompt(prompt) end
+                    task.wait(0.5)
+                    if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        localPlayer.Character.HumanoidRootPart.CFrame = currentPos
+                    end
+                end
+            end
+        end
+
         if _G.AutoKillBoss and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
             local bossFolder = workspace:FindFirstChild("Boss")
             local bossFound = false
@@ -678,13 +768,13 @@ task.spawn(function()
                 end
             end
         end
-        task.wait(3.0)
+        task.wait(2.5)
     end
 end)
 
 if teleportConnection then teleportConnection:Disconnect() end
 teleportConnection = runService.Heartbeat:Connect(function()
-    if (_G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss) and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+    if (_G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss or _G.AutoSummonDuck) and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
         local root = localPlayer.Character.HumanoidRootPart
         for _, part in pairs(localPlayer.Character:GetChildren()) do
             if part:IsA("BasePart") then part.CanCollide = false end
@@ -712,16 +802,12 @@ end)
 
 task.spawn(function()
     while true do
-        if _G.AutoM1 and (_G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss) and not isProcessingQuest then
+        if _G.AutoM1 and (_G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss or _G.AutoSummonDuck) and not isProcessingQuest then
             pcall(function()
                 local character = localPlayer.Character
                 if character and currentTargetRoot then
                     local tool = character:FindFirstChildOfClass("Tool")
-                    if tool then
-                        tool:Activate()
-                    else
-                        actionRemote:FireServer("Combat", "attack")
-                    end
+                    if tool then tool:Activate() else actionRemote:FireServer("Combat", "attack") end
                 end
             end)
         end
@@ -731,7 +817,7 @@ end)
 
 task.spawn(function()
     while true do
-        if _G.AutoFarm and not _G.AutoMaterial and not _G.AutoKillBoss then
+        if _G.AutoFarm and not _G.AutoMaterial and not _G.AutoKillBoss and not _G.AutoSummonDuck then
             local config = getCurrentQuestConfig()
             if config and config.npc ~= lastNpcTarget and not isProcessingQuest then abandonCurrentQuest() end
         end
@@ -748,10 +834,7 @@ task.spawn(function()
                     local randomFrame = playerGui:FindFirstChild("Frame_RandomItem", true)
                     local displayFrame = randomFrame and randomFrame:FindFirstChild("DisplayFrame")
                     local targetButton = displayFrame and displayFrame:FindFirstChild(_G.AutoGachaMode)
-                    
-                    if targetButton and targetButton.Visible then
-                        firesignal(targetButton.MouseButton1Click)
-                    end
+                    if targetButton and targetButton.Visible then firesignal(targetButton.MouseButton1Click) end
                 end
             end)
         end
@@ -768,10 +851,7 @@ task.spawn(function()
                     local prompt = chest.Root.Prompt
                     local myRoot = localPlayer.Character.HumanoidRootPart
                     local distance = (myRoot.Position - chest.Root.Position).Magnitude
-                    
-                    if distance <= 15 then
-                        fireproximityprompt(prompt)
-                    end
+                    if distance <= 15 then fireproximityprompt(prompt) end
                 end
             end)
         end
@@ -781,5 +861,7 @@ end)
 
 localPlayer.CharacterAdded:Connect(function()
     task.wait(2.0)
-    if _G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss then activateBuso() end
+    if _G.AutoBusoForced or _G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss or _G.AutoSummonDuck then 
+        if not checkBusoActive() then activateBuso() end
+    end
 end)
