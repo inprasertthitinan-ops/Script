@@ -4,6 +4,7 @@ local workspace = game:GetService("Workspace")
 local players = game:GetService("Players")
 local runService = game:GetService("RunService")
 local replicatedStorage = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
 local localPlayer = players.LocalPlayer
 
 ----------------------------------------------------------------
@@ -18,18 +19,31 @@ _G.AutoM1 = true
 _G.SelectedSlot = 1
 _G.SelectedSkills = {Z = true, X = true, C = true, V = false}
 _G.TargetBossName = "GooGooGaaGaa"
-_G.AutoGachaMode = nil
-_G.AutoOpenPrompt = false
+_G.AutoGachaMode = "x5"
+_G.AutoGachaEnabled = false
 _G.AutoRebirthEnabled = false
 _G.AutoStatsEnabled = false
 _G.UpgradeAmount = "1000"
 _G.AutoStatsSettings = { Melee = false, Defense = false, Sword = false, Power = false }
 _G.SelectedMatMobs = {}
 _G.HasTeleportedToIsland = false
+_G.AutoEventMoon = false
+
+-- ระบบบันทึกสคริปต์ข้ามเซิร์ฟเวอร์
+local queue_on_teleport = queue_on_teleport or syn and syn.queue_on_teleport
+if queue_on_teleport then
+    game:GetService("Players").LocalPlayer.OnTeleport:Connect(function(State)
+        if State == Enum.TeleportState.Started then
+            queue_on_teleport([[
+                repeat task.wait() until game:IsLoaded()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/daucobonhi/UiRedzV5/refs/heads/main/DemoUi.lua"))()
+            ]])
+        end
+    end)
+end
 
 local mobGroupTargets = {
-    {displayName = "Bacon Monster (Heart of Envy + Cake Monster)", mobName = "Bacon Monster", enabled = true},
-    {displayName = "Bacon (Wood + Bandage + Bacon)", mobName = "Bacon", enabled = false},
+    {displayName = "Bacon (Wood + Bandage + Bacon)", mobName = "Bacon", enabled = true},
     {displayName = "Bacon Strong (Dumbbell + Sandbag)", mobName = "Bacon Strong", enabled = false},
     {displayName = "Gorilla (Old Iron + Orb Black)", mobName = "Gorilla", enabled = false},
     {displayName = "Bacon Tarzan (Old Rock + Old Wood)", mobName = "Bacon Tarzan", enabled = false},
@@ -46,7 +60,8 @@ local mobGroupTargets = {
     {displayName = "Bacon Ice (Cursed Wood + Cursed Iron)", mobName = "Bacon Ice", enabled = false},
     {displayName = "Bacon Lava (Orb Fire)", mobName = "Bacon Lava", enabled = false},
     {displayName = "Bacon Hellfire (Orb Dragon + Dragon Fang)", mobName = "Bacon Hellfire", enabled = false},
-    {displayName = "Bacon Jackson (Thompson Gun + Microphone)", mobName = "Bacon Jackson", enabled = false}
+    {displayName = "Bacon Shadow Garden (Orb Purple)", mobName = "Bacon Shadow Garden", enabled = false},
+    {displayName = "Bacon Seinen (Shadow Diary)", mobName = "Bacon Seinen", enabled = false}
 }
 
 for i, group in ipairs(mobGroupTargets) do
@@ -63,9 +78,7 @@ local currentTargetRoot = nil
 local teleportConnection = nil
 local lastNpcTarget = ""
 local isProcessingQuest = false
-
 local matPositionMap = {
-    ["Bacon Monster"] = Vector3.new(96.728, 12.381, -929.966),
     ["Bacon"] = Vector3.new(-67.018, 7.859, -224.919),
     ["Bacon Strong"] = Vector3.new(-67.018, 7.859, -224.919),
     ["Gorilla"] = Vector3.new(-1172.509, 7.398, -1193.154),
@@ -83,7 +96,8 @@ local matPositionMap = {
     ["Bacon Ice"] = Vector3.new(62.811, 9.5, -2406.402),
     ["Bacon Lava"] = Vector3.new(1109.942, 6.856, -2179.784),
     ["Bacon Hellfire"] = Vector3.new(1109.942, 6.856, -2179.784),
-    ["Bacon Jackson"] = Vector3.new(96.728, 12.381, -929.966)
+    ["Bacon Shadow Garden"] = Vector3.new(-2203.343, 6.542, -730.282),
+    ["Bacon Seinen"] = Vector3.new(-2203.343, 6.542, -730.282)
 }
 
 local questMap = {
@@ -106,15 +120,13 @@ local questMap = {
     {minLv = 16000, maxLv = 16999, npc = "NPC_Quest17", mob = "Bacon Snow"},
     {minLv = 17000, maxLv = 17999, npc = "NPC_Quest18", mob = "Bacon Ice"},
     {minLv = 18000, maxLv = 18999, npc = "NPC_Quest19", mob = "Bacon Lava"},
-    {minLv = 19000, maxLv = math.huge, npc = "NPC_Quest20", mob = "Bacon Hellfire"}
+    {minLv = 19000, maxLv = 19999, npc = "NPC_Quest20", mob = "Bacon Hellfire"},
+    {minLv = 20000, maxLv = math.huge, npc = "NPC_Quest21", mob = "Bacon Shadow Garden"}
 }
-----------------------------------------------------------------
--- [Core Functions]
-----------------------------------------------------------------
+
 local function checkBusoActive()
     local char = localPlayer.Character
     if char then
-        -- ตรวจสอบจากโมเดล Effect หรือชิ้นส่วนในตัวละครว่ามีสถานะ Buso ทำงานอยู่ไหม
         for _, child in pairs(char:GetDescendants()) do
             if child:IsA("Model") and (string.find(string.lower(child.Name), "buso") or string.find(string.lower(child.Name), "haki")) then
                 return true
@@ -251,7 +263,6 @@ local function interactWithNPC(npc, isNewNpc)
         isProcessingQuest = false
     end
 end
-
 local function useSkillRemote(skillKey)
     pcall(function()
         local targetTool = getToolAtSlot(_G.SelectedSlot)
@@ -492,13 +503,42 @@ _G.StartFarmLoopFunc = function()
         end
     end)
 end
-----------------------------------------------------------------
--- [UI Redzlib V5 Setup - English Only]
-----------------------------------------------------------------
+
+local fileName = "RockFruit_Config.json"
+local function saveSettings()
+    local config = {
+        AutoFarm = _G.AutoFarm, AutoMaterial = _G.AutoMaterial, AutoKillBoss = _G.AutoKillBoss,
+        AutoSummonDuck = _G.AutoSummonDuck, AutoBusoForced = _G.AutoBusoForced, AutoM1 = _G.AutoM1,
+        SelectedSlot = _G.SelectedSlot, SelectedSkills = _G.SelectedSkills, TargetBossName = _G.TargetBossName,
+        AutoGachaMode = _G.AutoGachaMode, AutoGachaEnabled = _G.AutoGachaEnabled, AutoRebirthEnabled = _G.AutoRebirthEnabled,
+        AutoStatsEnabled = _G.AutoStatsEnabled, UpgradeAmount = _G.UpgradeAmount, AutoStatsSettings = _G.AutoStatsSettings,
+        AutoEventMoon = _G.AutoEventMoon
+    }
+    pcall(function() if writefile then writefile(fileName, HttpService:JSONEncode(config)) end end)
+end
+
+local function loadSettings()
+    pcall(function()
+        if isfile and isfile(fileName) and readfile then
+            local data = HttpService:JSONDecode(readfile(fileName))
+            if data then
+                _G.AutoFarm = data.AutoFarm or false; _G.AutoMaterial = data.AutoMaterial or false
+                _G.AutoKillBoss = data.AutoKillBoss or false; _G.AutoSummonDuck = data.AutoSummonDuck or false
+                _G.AutoBusoForced = data.AutoBusoForced or false; _G.AutoM1 = data.AutoM1 ~= nil and data.AutoM1 or true
+                _G.SelectedSlot = data.SelectedSlot or 1; _G.SelectedSkills = data.SelectedSkills or _G.SelectedSkills
+                _G.TargetBossName = data.TargetBossName or "GooGooGaaGaa"; _G.AutoGachaMode = data.AutoGachaMode or "x5"
+                _G.AutoGachaEnabled = data.AutoGachaEnabled or false; _G.AutoRebirthEnabled = data.AutoRebirthEnabled or false
+                _G.AutoStatsEnabled = data.AutoStatsEnabled or false; _G.UpgradeAmount = data.UpgradeAmount or "1000"
+                _G.AutoStatsSettings = data.AutoStatsSettings or _G.AutoStatsSettings; _G.AutoEventMoon = data.AutoEventMoon or false
+            end
+        end
+    end)
+end
+loadSettings()
 local redzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/daucobonhi/UiRedzV5/refs/heads/main/DemoUi.lua"))()
 
 local Window = redzlib:MakeWindow({
-    Title = "FLEX BUG ALL IN ONE",
+    Title = "Rock Fruit",
     SubTitle = "Official YouTube : Earth711",
     SaveFolder = "RockFruit.lua"
 })
@@ -506,209 +546,218 @@ local Window = redzlib:MakeWindow({
 local MainTab = Window:MakeTab({"Main", "home"})
 local BossTab = Window:MakeTab({"Boss", "swords"})
 local MaterialTab = Window:MakeTab({"Material", "package"})
+local MoonTab = Window:MakeTab({"Event Moon", "moon"})
 local StatsTab = Window:MakeTab({"Stats", "settings"})
 local RebirthTab = Window:MakeTab({"Rebirth", "refresh-cw"})
+local ConfigTab = Window:MakeTab({"Config", "file-text"})
 
--- [Main Tab]
+ConfigTab:AddSection({"Save & Load Settings"})
+ConfigTab:AddButton({Name = "Save Config (บันทึกสถานะปุ่ม)", Callback = function() saveSettings() end})
+
 MainTab:AddSection({"Auto Farm System"})
-
-MainTab:AddToggle({
-    Name = "Start Auto Farm",
-    Default = false,
+local toggleFarm = MainTab:AddToggle({
+    Name = "Start Auto Farm", Default = _G.AutoFarm,
     Callback = function(Value)
         _G.AutoFarm = Value
         if Value then
-            _G.AutoMaterial = false
-            _G.AutoKillBoss = false
-            _G.AutoSummonDuck = false
+            _G.AutoMaterial = false; _G.AutoKillBoss = false; _G.AutoSummonDuck = false; _G.AutoEventMoon = false; _G.KillAllMobMoon = false
             if _G.StartFarmLoopFunc then _G.StartFarmLoopFunc() end
         end
     end
 })
-
-MainTab:AddToggle({
-    Name = "Auto M1 (Attack)",
-    Default = true,
-    Callback = function(Value)
-        _G.AutoM1 = Value
-    end
-})
-
-MainTab:AddToggle({
-    Name = "Auto Forced Buso",
-    Default = false,
-    Callback = function(Value)
-        _G.AutoBusoForced = Value
-    end
-})
-
+MainTab:AddToggle({Name = "Auto M1 (Attack)", Default = _G.AutoM1, Callback = function(Value) _G.AutoM1 = Value end})
+MainTab:AddToggle({Name = "Auto Forced Buso", Default = _G.AutoBusoForced, Callback = function(Value) _G.AutoBusoForced = Value end})
 MainTab:AddDropdown({
-    Name = "Select Hotbar Slot",
-    Options = {"1", "2", "3", "4", "5"},
-    Default = "1",
-    Callback = function(Value)
-        _G.SelectedSlot = tonumber(Value)
-    end
+    Name = "Select Hotbar Slot", Options = {"1", "2", "3", "4", "5"}, Default = tostring(_G.SelectedSlot),
+    Callback = function(Value) _G.SelectedSlot = tonumber(Value) end
 })
 
 MainTab:AddSection({"Auto Skill Use"})
 for _, skill in ipairs({"Z", "X", "C", "V"}) do
-    MainTab:AddToggle({
-        Name = "Use Skill " .. skill,
-        Default = _G.SelectedSkills[skill],
-        Callback = function(Value)
-            _G.SelectedSkills[skill] = Value
-        end
-    })
+    MainTab:AddToggle({Name = "Use Skill " .. skill, Default = _G.SelectedSkills[skill], Callback = function(Value) _G.SelectedSkills[skill] = Value end})
 end
 
 MainTab:AddSection({"Auto Gacha System"})
-MainTab:AddDropdown({
-    Name = "Auto Gacha Mode",
-    Options = {"None", "x5", "x10", "x15"},
-    Default = "None",
+MainTab:AddDropdown({Name = "Select Gacha Mode", Options = {"x5", "x10", "x15"}, Default = _G.AutoGachaMode, Callback = function(Value) _G.AutoGachaMode = Value end})
+MainTab:AddToggle({Name = "Start Auto Gacha", Default = _G.AutoGachaEnabled, Callback = function(Value) _G.AutoGachaEnabled = Value end})
+
+MoonTab:AddSection({"Event Moon System"})
+MoonTab:AddToggle({
+    Name = "Start Auto Event Moon", Default = _G.AutoEventMoon,
     Callback = function(Value)
-        if Value == "None" then _G.AutoGachaMode = nil else _G.AutoGachaMode = Value end
+        _G.AutoEventMoon = Value
+        if Value then
+            _G.AutoFarm = false; _G.AutoMaterial = false; _G.AutoKillBoss = false; _G.AutoSummonDuck = false; _G.KillAllMobMoon = false
+        end
     end
 })
 
-MainTab:AddToggle({
-    Name = "Auto Open Chest (Prompt)",
-    Default = false,
+_G.KillAllMobMoon = false
+MoonTab:AddToggle({
+    Name = "Kill All Mob", Default = _G.KillAllMobMoon,
     Callback = function(Value)
-        _G.AutoOpenPrompt = Value
+        _G.KillAllMobMoon = Value
+        if Value then
+            _G.AutoFarm = false; _G.AutoMaterial = false; _G.AutoKillBoss = false; _G.AutoSummonDuck = false; _G.AutoEventMoon = false
+        end
     end
 })
 
--- [Boss Tab]
 BossTab:AddSection({"Normal Boss System"})
-
-local BossOptions = {"GooGooGaaGaa", "Dark Bacon"}
-BossTab:AddDropdown({
-    Name = "Select Target Boss",
-    Options = BossOptions,
-    Default = "GooGooGaaGaa",
-    Callback = function(Value)
-        _G.TargetBossName = Value
-    end
-})
-
+BossTab:AddDropdown({Name = "Select Target Boss", Options = {"GooGooGaaGaa", "Dark Bacon"}, Default = _G.TargetBossName, Callback = function(Value) _G.TargetBossName = Value end})
 BossTab:AddToggle({
-    Name = "Auto Summon & Kill Boss (Normal)",
-    Default = false,
+    Name = "Auto Summon & Kill Boss (Normal)", Default = _G.AutoKillBoss,
     Callback = function(Value)
         _G.AutoKillBoss = Value
         if Value then
-            _G.AutoFarm = false 
-            _G.AutoMaterial = false
-            _G.AutoSummonDuck = false
+            _G.AutoFarm = false; _G.AutoMaterial = false; _G.AutoSummonDuck = false; _G.AutoEventMoon = false; _G.KillAllMobMoon = false
             if _G.StartFarmLoopFunc then _G.StartFarmLoopFunc() end
         end
     end
 })
-
 BossTab:AddSection({"Summon Duck Monster"})
-
 BossTab:AddToggle({
-    Name = "Auto Summon & Kill Duck Monster",
-    Default = false,
+    Name = "Auto Summon & Kill Duck Monster", Default = _G.AutoSummonDuck,
     Callback = function(Value)
         _G.AutoSummonDuck = Value
         if Value then
-            _G.AutoFarm = false
-            _G.AutoMaterial = false
-            _G.AutoKillBoss = false
+            _G.AutoFarm = false; _G.AutoMaterial = false; _G.AutoKillBoss = false; _G.AutoEventMoon = false; _G.KillAllMobMoon = false
             if _G.StartFarmLoopFunc then _G.StartFarmLoopFunc() end
         end
     end
 })
 
--- [Material Tab]
 MaterialTab:AddSection({"Material System"})
-
 MaterialTab:AddToggle({
-    Name = "Start Material Farm",
-    Default = false,
+    Name = "Start Material Farm", Default = _G.AutoMaterial,
     Callback = function(Value)
         _G.AutoMaterial = Value
         if Value then
-            _G.AutoFarm = false
-            _G.AutoKillBoss = false
-            _G.AutoSummonDuck = false
-            _G.HasTeleportedToIsland = false
+            _G.AutoFarm = false; _G.AutoKillBoss = false; _G.AutoSummonDuck = false; _G.AutoEventMoon = false; _G.KillAllMobMoon = false; _G.HasTeleportedToIsland = false
             if _G.StartFarmLoopFunc then _G.StartFarmLoopFunc() end
         end
     end
 })
 
 local mobOptionsList = {}
-for _, group in ipairs(mobGroupTargets) do
-    table.insert(mobOptionsList, group.displayName)
-end
-
+for _, group in ipairs(mobGroupTargets) do table.insert(mobOptionsList, group.displayName) end
 MaterialTab:AddDropdown({
-    Name = "Select Target Mob",
-    Options = mobOptionsList,
-    Default = mobOptionsList[1],
+    Name = "Select Target Mob", Options = mobOptionsList, Default = mobOptionsList[1],
     Callback = function(Value)
         _G.HasTeleportedToIsland = false
         for _, g in ipairs(mobGroupTargets) do
-            if g.displayName == Value then _G.SelectedMatMobs[g.mobName] = true
-            else _G.SelectedMatMobs[g.mobName] = false end
+            if g.displayName == Value then _G.SelectedMatMobs[g.mobName] = true else _G.SelectedMatMobs[g.mobName] = false end
         end
     end
 })
 
--- [Stats Tab]
 StatsTab:AddSection({"Auto Stats Config"})
-
-StatsTab:AddTextBox({
-    Name = "Upgrade Amount",
-    Default = "1000",
-    TextDisappear = false,
-    Callback = function(Value) _G.UpgradeAmount = Value end
-})
-
-StatsTab:AddToggle({
-    Name = "Start Auto Stats",
-    Default = false,
-    Callback = function(Value)
-        _G.AutoStatsEnabled = Value
-        if Value then task.spawn(runAutoStatsLoop) end
-    end
-})
-
+StatsTab:AddTextBox({Name = "Upgrade Amount", Default = _G.UpgradeAmount, TextDisappear = false, Callback = function(Value) _G.UpgradeAmount = Value end})
+StatsTab:AddToggle({Name = "Start Auto Stats", Default = _G.AutoStatsEnabled, Callback = function(Value) _G.AutoStatsEnabled = Value; if Value then task.spawn(runAutoStatsLoop) end end})
 StatsTab:AddSection({"Select Stats to Upgrade"})
-StatsTab:AddToggle({Name = "Melee", Default = false, Callback = function(Value) _G.AutoStatsSettings.Melee = Value end})
-StatsTab:AddToggle({Name = "Defense", Default = false, Callback = function(Value) _G.AutoStatsSettings.Defense = Value end})
-StatsTab:AddToggle({Name = "Sword", Default = false, Callback = function(Value) _G.AutoStatsSettings.Sword = Value end})
-StatsTab:AddToggle({Name = "Fruit & Special", Default = false, Callback = function(Value) _G.AutoStatsSettings.Power = Value end})
+StatsTab:AddToggle({Name = "Melee", Default = _G.AutoStatsSettings.Melee, Callback = function(Value) _G.AutoStatsSettings.Melee = Value end})
+StatsTab:AddToggle({Name = "Defense", Default = _G.AutoStatsSettings.Defense, Callback = function(Value) _G.AutoStatsSettings.Defense = Value end})
+StatsTab:AddToggle({Name = "Sword", Default = _G.AutoStatsSettings.Sword, Callback = function(Value) _G.AutoStatsSettings.Sword = Value end})
+StatsTab:AddToggle({Name = "Fruit & Special", Default = _G.AutoStatsSettings.Power, Callback = function(Value) _G.AutoStatsSettings.Power = Value end})
 
--- [Rebirth Tab]
 RebirthTab:AddSection({"Rebirth System"})
+RebirthTab:AddToggle({Name = "Auto Rebirth (Lv. 20000+)", Default = _G.AutoRebirthEnabled, Callback = function(Value) _G.AutoRebirthEnabled = Value; if Value then task.spawn(startRebirthLoop) end end})
 
-RebirthTab:AddToggle({
-    Name = "Auto Rebirth (Lv. 20000+)",
-    Default = false,
-    Callback = function(Value)
-        _G.AutoRebirthEnabled = Value
-        if Value then task.spawn(startRebirthLoop) end
-    end
-})
+if _G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss or _G.AutoSummonDuck then if _G.StartFarmLoopFunc then _G.StartFarmLoopFunc() end end
+if _G.AutoStatsEnabled then task.spawn(runAutoStatsLoop) end
+if _G.AutoRebirthEnabled then task.spawn(startRebirthLoop) end
 
-----------------------------------------------------------------
--- [Background Threads & Fixed Buso Loop]
-----------------------------------------------------------------
--- ลูปตรวจสอบอัจฉริยะ: ถ้าตัวแปรเปิดอยู่ และพบว่าฮาคิปิดอยู่จริง ถึงจะส่งคำสั่งเปิด (แก้ปัญหาเปิดปิดรัวๆ)
+-- [ระบบลูปโจมตีมอนสเตอร์ทุกตัว Kill All Mob]
 task.spawn(function()
+    local priorityPosition = Vector3.new(192.666, 29.598, 921.176)
+    local checkRadius = 65
+
     while true do
-        if _G.AutoBusoForced then
+        if _G.KillAllMobMoon and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
             pcall(function()
-                if not checkBusoActive() then
-                    activateBuso()
+                local mobFolder = workspace:FindFirstChild("Mob") or workspace:FindFirstChild("Mobs")
+                local normalTarget = nil
+                local closestPriorityTarget = nil
+                local shortestDistance = math.huge
+                
+                if mobFolder then
+                    for _, mob in pairs(mobFolder:GetChildren()) do
+                        local mobRoot = mob:FindFirstChild("HumanoidRootPart")
+                        local mobHum = mob:FindFirstChildOfClass("Humanoid")
+                        if mobRoot and (not mobHum or mobHum.Health > 0) then
+                            local distanceToPriority = (mobRoot.Position - priorityPosition).Magnitude
+                            
+                            if distanceToPriority <= checkRadius then
+                                if distanceToPriority < shortestDistance then
+                                    shortestDistance = distanceToPriority
+                                    closestPriorityTarget = mobRoot
+                                end
+                            elseif not normalTarget then
+                                normalTarget = mobRoot
+                            end
+                        end
+                    end
+                end
+                
+                local finalTarget = closestPriorityTarget or normalTarget
+                
+                if finalTarget then
+                    currentTargetRoot = finalTarget
+                    local orderedSkills = {"Z", "X", "C", "V"}
+                    for _, skill in ipairs(orderedSkills) do
+                        if not _G.KillAllMobMoon or currentTargetRoot ~= finalTarget then break end
+                        if _G.SelectedSkills[skill] then
+                            pcall(function()
+                                local character = localPlayer.Character
+                                local targetTool = character and character:FindFirstChildOfClass("Tool")
+                                local toolName = targetTool and targetTool.Name or "Combat"
+                                actionRemote:FireServer(toolName, string.lower(skill))
+                            end)
+                            task.wait(0.05)
+                        end
+                    end
+                else
+                    currentTargetRoot = nil
                 end
             end)
         end
+        task.wait(0.01)
+    end
+end)
+
+-- [ระบบลูปเสกปุ่ม Event Moon แบบจอดครั้งเดียวพุ่ง 20 สตั๊ด]
+task.spawn(function()
+    while true do
+        if _G.AutoEventMoon and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            pcall(function()
+                local myRoot = localPlayer.Character.HumanoidRootPart
+                local npcPromptFolder = workspace:FindFirstChild("NpcPrompt")
+                local goMoonNPC = npcPromptFolder and npcPromptFolder:FindFirstChild("GoMoon")
+                
+                if goMoonNPC then
+                    local npcRoot = goMoonNPC:FindFirstChild("HumanoidRootPart") or goMoonNPC:FindFirstChild("Head") or goMoonNPC:FindFirstChildOfClass("Part")
+                    if npcRoot then
+                        currentTargetRoot = nil
+                        myRoot.CFrame = npcRoot.CFrame * CFrame.new(0, 0.5, 0)
+                        task.wait(0.15)
+                        
+                        local prompt = goMoonNPC:FindFirstChildWhichIsA("ProximityPrompt", true)
+                        if prompt then fireproximityprompt(prompt) end
+                        task.wait(0.1)
+                        
+                        myRoot.CFrame = npcRoot.CFrame * CFrame.new(0, 1, -20)
+                        _G.AutoEventMoon = false
+                    end
+                end
+            end)
+        end
+        task.wait(0.5)
+    end
+end)
+
+task.spawn(function()
+    while true do
+        if _G.AutoBusoForced and not checkBusoActive() then activateBuso() end
         task.wait(0.5)
     end
 end)
@@ -720,18 +769,13 @@ task.spawn(function()
             local duckFound = false
             if mobFolder then
                 for _, m in pairs(mobFolder:GetChildren()) do
-                    if m.Name == "Duck Monster" then
-                        local hum = m:FindFirstChildOfClass("Humanoid")
-                        if not hum or hum.Health > 0 then duckFound = true; break end
-                    end
+                    if m.Name == "Duck Monster" then local hum = m:FindFirstChildOfClass("Humanoid"); if not hum or hum.Health > 0 then duckFound = true; break end end
                 end
             end
-            
             if not duckFound then
                 local currentPos = localPlayer.Character.HumanoidRootPart.CFrame
                 local duckNpc = workspace:FindFirstChild("NpcPrompt") and workspace.NpcPrompt:FindFirstChild("DuckMonster")
                 local targetPart = duckNpc and (duckNpc:FindFirstChild("HumanoidRootPart") or duckNpc:FindFirstChild("Duck"))
-                
                 if targetPart then
                     currentTargetRoot = nil
                     localPlayer.Character.HumanoidRootPart.CFrame = targetPart.CFrame * CFrame.new(0, 0, -3)
@@ -739,9 +783,7 @@ task.spawn(function()
                     local prompt = duckNpc:FindFirstChildWhichIsA("ProximityPrompt", true)
                     if prompt then fireproximityprompt(prompt) end
                     task.wait(0.5)
-                    if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                        localPlayer.Character.HumanoidRootPart.CFrame = currentPos
-                    end
+                    if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then localPlayer.Character.HumanoidRootPart.CFrame = currentPos end
                 end
             end
         end
@@ -751,10 +793,7 @@ task.spawn(function()
             local bossFound = false
             if bossFolder then
                 for _, mob in pairs(bossFolder:GetChildren()) do
-                    if string.lower(mob.Name) == string.lower(_G.TargetBossName) then
-                        local hum = mob:FindFirstChildOfClass("Humanoid") or mob:FindFirstChildWhichIsA("Humanoid", true)
-                        if not hum or hum.Health > 0 then bossFound = true; break end
-                    end
+                    if string.lower(mob.Name) == string.lower(_G.TargetBossName) then local hum = mob:FindFirstChildOfClass("Humanoid") or mob:FindFirstChildWhichIsA("Humanoid", true); if not hum or hum.Health > 0 then bossFound = true; break end end
                 end
             end
             if not bossFound then
@@ -763,34 +802,41 @@ task.spawn(function()
                 task.wait(0.5)
                 clickSummonAndClose(_G.TargetBossName)
                 task.wait(0.5)
-                if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                    localPlayer.Character.HumanoidRootPart.CFrame = currentPos
-                end
+                if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then localPlayer.Character.HumanoidRootPart.CFrame = currentPos end
             end
         end
         task.wait(2.5)
     end
 end)
 
+-- [ระบบขับเคลื่อนจัดทิศทางตำแหน่ง: เพิ่มระยะห่างเยื้องหน้าเป็น 6.5 สตั๊ด เพื่อแก้ปัญหาการโจมตีธรรมดาไม่โดน]
 if teleportConnection then teleportConnection:Disconnect() end
 teleportConnection = runService.Heartbeat:Connect(function()
-    if (_G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss or _G.AutoSummonDuck) and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+    if (_G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss or _G.AutoSummonDuck or _G.KillAllMobMoon) and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
         local root = localPlayer.Character.HumanoidRootPart
-        for _, part in pairs(localPlayer.Character:GetChildren()) do
-            if part:IsA("BasePart") then part.CanCollide = false end
-        end
+        for _, part in pairs(localPlayer.Character:GetChildren()) do if part:IsA("BasePart") then part.CanCollide = false end end
+        
         if currentTargetRoot and currentTargetRoot.Parent then
-            root.CFrame = (currentTargetRoot.CFrame * CFrame.new(0, 7, 0)) * CFrame.Angles(math.rad(-90), 0, 0)
-        else
+            if _G.KillAllMobMoon then
+                local targetPos = currentTargetRoot.Position
+                local targetLook = currentTargetRoot.CFrame.LookVector
+                
+                -- แก้ไข: ปรับระยะจากเดิม 3.5 เป็น 6.5 เพื่อขยับตัวเราออกมาหน่อย ให้ระยะ Hitbox ตีธรรมดา (M1) ทำงานได้ปกติ
+                local standPosition = Vector3.new(targetPos.X + (targetLook.X * 6.5), targetPos.Y, targetPos.Z + (targetLook.Z * 6.5))
+                
+                root.CFrame = CFrame.new(standPosition, Vector3.new(targetPos.X, standPosition.Y, targetPos.Z))
+            else
+                root.CFrame = (currentTargetRoot.CFrame * CFrame.new(0, 7, 0)) * CFrame.Angles(math.rad(-90), 0, 0)
+            end
+        else 
             root.Velocity = Vector3.new(0, 0, 0)
-            root.RotVelocity = Vector3.new(0, 0, 0)
+            root.RotVelocity = Vector3.new(0, 0, 0) 
         end
+        
         if not root:FindFirstChild("VelocityHandler") then
             local bv = Instance.new("BodyVelocity")
-            bv.Name = "VelocityHandler"
-            bv.Velocity = Vector3.new(0, 0, 0)
-            bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-            bv.Parent = root
+            bv.Name = "VelocityHandler"; bv.Velocity = Vector3.new(0, 0, 0)
+            bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge); bv.Parent = root
         end
     else
         if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -802,7 +848,7 @@ end)
 
 task.spawn(function()
     while true do
-        if _G.AutoM1 and (_G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss or _G.AutoSummonDuck) and not isProcessingQuest then
+        if (_G.AutoM1 and (_G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss or _G.AutoSummonDuck or _G.KillAllMobMoon)) and not isProcessingQuest then
             pcall(function()
                 local character = localPlayer.Character
                 if character and currentTargetRoot then
@@ -827,7 +873,7 @@ end)
 
 task.spawn(function()
     while true do
-        if _G.AutoGachaMode then
+        if _G.AutoGachaEnabled and _G.AutoGachaMode then
             pcall(function()
                 local playerGui = localPlayer:FindFirstChild("PlayerGui")
                 if playerGui then
@@ -842,26 +888,7 @@ task.spawn(function()
     end
 end)
 
-task.spawn(function()
-    while true do
-        if _G.AutoOpenPrompt and localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            pcall(function()
-                local chest = game.Workspace:FindFirstChild("Chest")
-                if chest and chest:FindFirstChild("Root") and chest.Root:FindFirstChild("Prompt") then
-                    local prompt = chest.Root.Prompt
-                    local myRoot = localPlayer.Character.HumanoidRootPart
-                    local distance = (myRoot.Position - chest.Root.Position).Magnitude
-                    if distance <= 15 then fireproximityprompt(prompt) end
-                end
-            end)
-        end
-        task.wait(0.2)
-    end
-end)
-
 localPlayer.CharacterAdded:Connect(function()
     task.wait(2.0)
-    if _G.AutoBusoForced or _G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss or _G.AutoSummonDuck then 
-        if not checkBusoActive() then activateBuso() end
-    end
+    if (_G.AutoBusoForced or _G.AutoFarm or _G.AutoMaterial or _G.AutoKillBoss or _G.AutoSummonDuck) and not checkBusoActive() then activateBuso() end
 end)
